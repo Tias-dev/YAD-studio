@@ -43,6 +43,8 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Install official Qt ${{ env.QT_VERSION }}
         uses: jurplel/install-qt-action@v4
@@ -189,6 +191,8 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Install Qt ${{ env.QT_VERSION }}
         uses: jurplel/install-qt-action@v4
@@ -261,6 +265,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Install Nix
         uses: cachix/install-nix-action@v30
