@@ -1,9 +1,13 @@
 #include "MarkovEditorWidget.h"
 
+#include <qobject.h>
+#include <qregularexpression.h>
+
 #include <QDebug>
 #include <QFont>
 #include <QFontMetrics>
 #include <QPainter>
+#include <QRegularExpression>
 #include <QTextBlock>
 
 #include "Logic/MarkovParser.h"
@@ -33,7 +37,7 @@ MarkovEditorWidget::MarkovEditorWidget(QWidget* parent)
 
     // Set tab width
     QFontMetrics metrics(font);
-    this->setTabStopWidth(4 * metrics.width(' '));
+    this->setTabStopDistance(4 * metrics.averageCharWidth());
 
     _line_number_font.setFamily("Courier");
     _line_number_font.setStyleHint(QFont::Monospace);
@@ -72,17 +76,18 @@ void MarkovEditorWidget::MarkovHighliter::highlightBlock(const QString& text) {
         QTextCharFormat symbols;
         symbols.setForeground(alphabet_color);
         symbols.setFontWeight(QFont::Bold);
-        QString pattern =
-            "[" +
-            QRegExp::escape(_editor->_algorithm.getAlphabet().getAllChars()) +
-            "]+";
+        QString pattern = "[" +
+                          QRegularExpression::escape(
+                              _editor->_algorithm.getAlphabet().getAllChars()) +
+                          "]+";
 
         if (_editor->_algorithm.getAlphabet().isAuto()) pattern = ".+";
 
-        QRegExp expression(pattern);
-        int index = text.indexOf(expression);
+        QRegularExpression expression(pattern);
+        QRegularExpressionMatch match = expression.match(text);
+        int index = match.lastCapturedIndex();
         while (index >= 0) {
-            int length = expression.matchedLength();
+            int length = match.capturedLength();
             setFormat(index, length, symbols);
             index = text.indexOf(expression, index + length);
         }
@@ -95,10 +100,11 @@ void MarkovEditorWidget::MarkovHighliter::highlightBlock(const QString& text) {
         system.setFontWeight(QFont::Bold);
 
         QString pattern = "[TI= \\{\\},]+";
-        QRegExp expression(pattern);
-        int index = text.indexOf(expression);
+        QRegularExpression expression(pattern);
+        QRegularExpressionMatch match = expression.match(text);
+        int index = match.lastCapturedIndex();
         while (index >= 0) {
-            int length = expression.matchedLength();
+            int length = match.capturedLength();
             setFormat(index, length, system);
             index = text.indexOf(expression, index + length);
         }
@@ -111,10 +117,11 @@ void MarkovEditorWidget::MarkovHighliter::highlightBlock(const QString& text) {
         system.setFontWeight(QFont::Bold);
 
         QString pattern = "->";
-        QRegExp expression(pattern);
-        int index = text.indexOf(expression);
+        QRegularExpression expression(pattern);
+        QRegularExpressionMatch match = expression.match(text);
+        int index = match.lastCapturedIndex();
         while (index >= 0) {
-            int length = expression.matchedLength();
+            int length = match.capturedLength();
             setFormat(index, length, system);
             index = text.indexOf(expression, index + length);
         }
@@ -127,10 +134,11 @@ void MarkovEditorWidget::MarkovHighliter::highlightBlock(const QString& text) {
         system.setFontWeight(QFont::Bold);
 
         QString pattern = "->\\.";
-        QRegExp expression(pattern);
-        int index = text.indexOf(expression);
+        QRegularExpression expression(pattern);
+        QRegularExpressionMatch match = expression.match(text);
+        int index = match.lastCapturedIndex();
         while (index >= 0) {
-            int length = expression.matchedLength();
+            int length = match.capturedLength();
             setFormat(index, length, system);
             index = text.indexOf(expression, index + length);
         }
@@ -143,10 +151,12 @@ void MarkovEditorWidget::MarkovHighliter::highlightBlock(const QString& text) {
         comments.setFontItalic(true);
 
         QString pattern = "//.*$";
-        QRegExp expression(pattern);
-        int index = text.indexOf(expression);
+
+        QRegularExpression expression(pattern);
+        QRegularExpressionMatch match = expression.match(text);
+        int index = match.lastCapturedIndex();
         if (index >= 0) {
-            int length = expression.matchedLength();
+            int length = match.capturedLength();
             setFormat(index, length, comments);
         }
     }
@@ -163,7 +173,7 @@ int MarkovEditorWidget::lineNumberAreaWidth() {
     }
 
     int space = break_point_padding * 2 + 3 +
-                _line_number_metrics.width(QLatin1Char('9')) * digits +
+                _line_number_metrics.averageCharWidth() * digits +
                 break_point_width;
 
     return space;
@@ -368,20 +378,19 @@ void MarkovEditorWidget::lineNumberAreaPaintEvent(QPaintEvent* event) {
 void MarkovEditorWidget::breakPointPress(QMouseEvent* event) {
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber() + 1;
-    int top =
-        (int)blockBoundingGeometry(block).translated(contentOffset()).top();
-    int bottom = top + (int)blockBoundingRect(block).height();
+    qreal top = blockBoundingGeometry(block).translated(contentOffset()).top();
+    qreal bottom = top + blockBoundingRect(block).height();
 
-    int y = event->y();
+    QPointF point = event->position();
 
-    while (block.isValid() && y > bottom) {
+    while (block.isValid() && point.y() > bottom) {
         blockNumber++;
         block = block.next();
         top = bottom;
         bottom = top + (int)blockBoundingRect(block).height();
     }
 
-    if (y > bottom) {
+    if (point.y() > bottom) {
         blockNumber = -1;
     }
 

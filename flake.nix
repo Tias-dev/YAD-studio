@@ -19,6 +19,10 @@
       url = "github:cachix/git-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    mini-compile-commands = {
+      url = "github:danielbarter/mini_compile_commands";
+      flake = false;
+    };
   };
 
   outputs = inputs:
@@ -26,16 +30,22 @@
       imports = [inputs.treefmt-nix.flakeModule];
       systems = import inputs.systems;
       perSystem = {
-        inputs',
+        self',
         pkgs,
         ...
       }: {
-        packages = {};
-        devShells = {
+        packages = {
+          VTM = pkgs.qt6.callPackage ./default.nix {};
+          default = self'.packages.VTM;
+        };
+        devShells = let
+          mcc-env = (pkgs.callPackage inputs.mini-compile-commands {}).wrap pkgs.stdenv;
+        in {
           default = inputs.devenv.lib.mkShell {
             inherit inputs pkgs;
             modules = [
               (import inputs.import-tree ./devenv)
+              {stdenv = mcc-env;}
             ];
           };
         };

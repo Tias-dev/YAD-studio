@@ -1,7 +1,8 @@
 #include "MarkovRunManager.h"
 
 #include <QCoreApplication>
-#include <QTime>
+#include <QElapsedTimer>
+#include <algorithm>
 
 MarkovRunManager* MarkovRunManager::_instance = nullptr;
 
@@ -21,11 +22,6 @@ MarkovRunManager::MarkovRunManager()
 RunError notInAlphabet(QString letter, MarkovAlphabet alphabet_m,
                        QString name = "T") {
     QString old_alphabet = QObject::tr("%1").arg(letter);
-    //    QSet<QChar> alphabet = alphabet_m.getAlphabet();
-    //    foreach (const QChar value, alphabet)
-    //    {
-    //        old_alphabet += QObject::tr(", %1").arg(value);
-    //    }
     old_alphabet += ", " + alphabet_m.getSource();
 
     QString title = QObject::tr("Symbol '%1' is not in alphabet").arg(letter);
@@ -38,15 +34,7 @@ RunError notInAlphabet(QString letter, MarkovAlphabet alphabet_m,
 }
 
 int MarkovRunManager::getStepNumberOfValue(QString word) {
-    //    QSet<StepResult>::iterator i;
-    //    for (i = _steps_history.begin(); i != _steps_history.end(); ++i)
-    //    {
-    //        StepResult curr = *i;
-    //        if(curr._output == word)
-    //            return curr._step_id;
-    //    }
-
-    QSet<StepResult>::iterator it = qFind(
+    QSet<StepResult>::iterator it = std::find(
         _steps_history.begin(), _steps_history.end(), StepResult(word, 0));
     if (it != _steps_history.end()) return (*it)._step_id;
     return -1;
@@ -209,7 +197,7 @@ void MarkovRunManager::runWithoutDebug(QString input_word) {
     QCoreApplication::processEvents();
 
     if (isInputValid(input_word)) {
-        QTime time;
+        QElapsedTimer time;
         time.start();
 
         while (findAndApplyNextRule()) {

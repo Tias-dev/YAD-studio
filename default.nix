@@ -15,8 +15,8 @@
   };
 in
   stdenv.mkDerivation {
-    pname = "VTM";
-    version = "v1.0.2";
+    pname = "YAD-Studio";
+    version = "${builtins.readFile ./VERSION}";
     src = sources;
     buildInputs = [
       qtbase
@@ -29,5 +29,5 @@ in
       qtimageformats
     ];
 
-    meta.mainProgram = "VTM";
+    meta.mainProgram = "YAD-Studio";
   }

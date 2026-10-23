@@ -4,4 +4,5 @@
 
   # Other formatting tools
   programs.clang-format.enable = true;
+  programs.prettier.enable = true;
 }

@@ -1,6 +1,10 @@
 #include "MarkovParser.h"
 
+#include <qregularexpression.h>
+#include <qstringview.h>
+
 #include <QDebug>
+#include <QRegularExpression>
 #include <QStringList>
 
 namespace Parser {
@@ -113,19 +117,20 @@ bool isCharsInAlphabet(int line_number, QString text,
 
 void parseRule(int line_number, QString line, QVector<CompilerError>& errors,
                QVector<MarkovRule>& rules, MarkovAlphabet& alphabet) {
-    static QRegExp rx_rule("^([^\\.\\->]+)(->[\\.]*)([^\\.\\->]+)$");
+    static QRegularExpression rx_rule("^([^\\.\\->]+)(->[\\.]*)([^\\.\\->]+)$");
 
     // Read rule
-    int pos = rx_rule.indexIn(line);
+    QRegularExpressionMatch match = rx_rule.match(line);
+    int pos = match.lastCapturedIndex();
     if (pos < 0) {
         errors.push_back(wrongRuleDefenition(line_number, line));
     } else {
-        QString left_part = trim(rx_rule.cap(1));
-        QString right_part = trim(rx_rule.cap(3));
+        QString left_part = trim(match.captured(1));
+        QString right_part = trim(match.captured(3));
 
         if (isCharsInAlphabet(line_number, left_part, errors, alphabet) &&
             isCharsInAlphabet(line_number, right_part, errors, alphabet)) {
-            QString mid = trim(rx_rule.cap(2));
+            QString mid = trim(match.captured(2));
             bool is_final = mid == "->.";
             MarkovRule rule(left_part, right_part, is_final, line_number);
             rules.push_back(rule);
@@ -139,18 +144,19 @@ void parseRule(int line_number, QString line, QVector<CompilerError>& errors,
 bool parseAlphabet(int line_number, QString line,
                    QVector<CompilerError>& errors, MarkovAlphabet& alphab,
                    QString alphabet_mark) {
-    QRegExp rx_alphabet("^" + alphabet_mark +
-                        "[\\s]*=[\\s]*\\{([^\\{\\}]*)\\}$");
+    QRegularExpression rx_alphabet("^" + alphabet_mark +
+                                   "[\\s]*=[\\s]*\\{([^\\{\\}]*)\\}$");
 
     bool res = false;
     // Read alphabet
-    int pos = rx_alphabet.indexIn(line);
+    QRegularExpressionMatch match = rx_alphabet.match(line);
+    int pos = match.lastCapturedIndex();
     if (pos < 0) {
         // Error
         res = false;
         // errors.push_back(noAlphabetDefenition(line_number));
     } else {
-        QString letters_str = trim(rx_alphabet.cap(1));
+        QString letters_str = trim(match.captured(1));
 #ifndef QT_NO_DEBUG
         qDebug() << "Letters: " << letters_str;
 #endif
@@ -195,7 +201,7 @@ bool MarkovParser::parseSourceCode(QString source_code,
     bool first_rule_is_readed = false;
     bool T_alphabet = false;
     bool I_alphabet = false;
-    QStringList lines = source_code.split(QRegExp("[\r\n]"));
+    QStringList lines = source_code.split(QRegularExpression("[\r\n]"));
 
     errors.clear();
 

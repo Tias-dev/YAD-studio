@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QTemporaryFile>
 #include <QTextCursor>
 #include <QUrl>
 
@@ -15,8 +16,6 @@
 #include "Managers/MarkovRunManager.h"
 #include "Managers/SourceCodeManager.h"
 #include "Widgets/DebugRunWidget.h"
-#include "Widgets/HistoryWidget.h"
-#include "Widgets/InputWidget.h"
 #include "Widgets/RunWidget.h"
 #include "ui_MainWindow.h"
 
@@ -271,10 +270,22 @@ void MainWindow::about() {
 }
 
 void MainWindow::tutorial() {
-    QDir path(QCoreApplication::applicationDirPath());
-    QString file_path = path.filePath("tutorial.html");
+    QTemporaryFile file{QDir::tempPath() + "/XXXXXX-tutorial.html"};
+    if (!file.open()) {
+        QMessageBox box;
+        box.setWindowTitle("Error");
+        box.setText(QString{"Can't open file: "} + file.fileName() +
+                    QString{" to write tutorial in it"});
+        box.exec();
+        return;
+    }
 
-    QUrl url = QUrl::fromLocalFile(file_path);
+    file.write(
+#include "docs/tutorial.html"
+    );
+    file.setAutoRemove(false);
+    file.close();
+    QUrl url = QUrl::fromLocalFile(file.fileName());
     qDebug() << url;
     QDesktopServices::openUrl(url);
 }

@@ -1,5 +1,5 @@
-Yad Studio
-==========
+# Yad Studio
+
 ![logo_small](http://yad-studio.github.io/images/logo.png)
 
 ###Description
@@ -12,4 +12,3 @@ You can find out more in tutorial: [Tutorial](http://yad-studio.github.io/#tutor
 Updated build to Cmake + Nix
 
 TODO: Added headless version
-

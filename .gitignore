@@ -21,3 +21,6 @@ build*
 .devenv
 .direnv
 *-arx
+compile_commands.json
+.pre-commit-config.yaml
+.cache

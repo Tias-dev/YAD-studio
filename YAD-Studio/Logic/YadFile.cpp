@@ -1,7 +1,10 @@
 #include "YadFile.h"
 
+#include <qobject.h>
+
 #include <QDebug>
 #include <QFile>
+#include <QRegularExpression>
 #include <QStringList>
 #include <stdexcept>
 
@@ -23,11 +26,11 @@ void YadFile::saveToFile(QString file_name) const {
     }
 
     QTextStream out(&file);
-    out << _source_code << endl << endl << endl;
+    out << _source_code << "\n\n\n";
 
-    out << history_start << endl;
+    out << history_start << '\n';
     for (int i = 0; i < _history.size(); ++i) {
-        out << "//" << _history[i] << endl;
+        out << "//" << _history[i] << '\n';
     }
 }
 
@@ -74,7 +77,7 @@ YadFile YadFile::readFromFile(QString file_name) {
     // QString source = "//Comment\nT = {a,b, c}\n aa->b \n bb->a\n\n";
     QVector<QString> history;
 
-    QStringList lines = history_line.split(QRegExp("[\r\n]"));
+    QStringList lines = history_line.split(QRegularExpression("[\r\n]"));
     for (int i = 0; i < lines.size(); ++i) {
         QString line = lines[i].trimmed();
         if (line.size() > 2 && line.mid(0, 2) == "//") {

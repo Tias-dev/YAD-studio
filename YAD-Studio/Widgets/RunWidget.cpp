@@ -10,13 +10,8 @@ RunWidget::RunWidget(QWidget* parent) : QWidget(parent), ui(new Ui::RunWidget) {
 
     if (!isVisible()) {
         setVisible(true);
-        // show();
     }
     ui->outputWord->setVisible(false);
-
-    //    runFailed("abcd", RunError("Error My","Diff error",105),205);
-
-    //    runSuccess("ssrr","outputoutput",1234);
 
     ui->errorDescription->setVisible(false);
     ui->errorTitle->setVisible(false);

@@ -1,6 +1,9 @@
 #ifndef MARKOVPARSER_H
 #define MARKOVPARSER_H
-#include "Logic/CompilerError.h"
+#include <QString>
+#include <QVector>
+
+#include "CompilerError.h"
 #include "Logic/MarkovAlgorithm.h"
 
 class MarkovParser {
