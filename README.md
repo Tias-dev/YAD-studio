@@ -7,11 +7,9 @@ Yad Studio is an easy IDE for Markov Algorithms interpretation. It has Run and D
 
 You can find out more in tutorial: [Tutorial](http://yad-studio.github.io/#tutorial)
 
-###Download
-- [Yad Studio Setup.msi](https://github.com/Yad-Studio/YAD-Studio/releases/download/v1.01/Yad.Studio.1.0.Setup.msi)
-- [Yad Studio Portable.zip](https://github.com/Yad-Studio/YAD-Studio/releases/download/v1.01/Yad.Studio.1.0.Portable.zip)
+## FORKED FROM [THIS](https://github.com/Yad-Studio/YAD-Studio/)
 
-![screenshot](http://yad-studio.github.io/images/s2.png)
+Updated build to Cmake + Nix
 
-![screenshot](http://yad-studio.github.io/images/s3.png)
+TODO: Added headless version
 
