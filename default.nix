@@ -16,7 +16,7 @@
 in
   stdenv.mkDerivation {
     pname = "YAD-Studio";
-    version = "${builtins.readFile ./VERSION}";
+    version = "${builtins.replaceStrings ["\n"] [""] (builtins.readFile ./VERSION)}";
     src = sources;
     buildInputs = [
       qtbase

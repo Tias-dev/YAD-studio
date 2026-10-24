@@ -35,8 +35,8 @@
         ...
       }: {
         packages = {
-          VTM = pkgs.qt6.callPackage ./default.nix {};
-          default = self'.packages.VTM;
+          YAD-Studio = pkgs.qt6.callPackage ./default.nix {};
+          default = self'.packages.YAD-Studio;
         };
         devShells = let
           mcc-env = (pkgs.callPackage inputs.mini-compile-commands {}).wrap pkgs.stdenv;
