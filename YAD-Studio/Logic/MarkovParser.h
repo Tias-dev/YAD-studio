@@ -1,10 +1,11 @@
 #ifndef MARKOVPARSER_H
 #define MARKOVPARSER_H
 #include <QString>
-#include <QVector>
+#include <vector>
 
+#include "Comment.h"
 #include "CompilerError.h"
-#include "Logic/MarkovAlgorithm.h"
+#include "MarkovAlgorithm.h"
 
 class MarkovParser {
    public:
@@ -16,7 +17,8 @@ class MarkovParser {
      * @return returns true if there are no errors and false otherwise.
      */
     static bool parseSourceCode(QString source_code, MarkovAlgorithm& algorithm,
-                                QVector<CompilerError>& errors);
+                                std::vector<CompilerError>& errors,
+                                std::vector<Comment>& comments);
 
    private:
     MarkovParser();

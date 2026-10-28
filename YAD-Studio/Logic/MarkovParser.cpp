@@ -1,16 +1,27 @@
 #include "MarkovParser.h"
 
+#include <qcontainerfwd.h>
 #include <qregularexpression.h>
 #include <qstringview.h>
 
 #include <QDebug>
 #include <QRegularExpression>
-#include <QStringList>
+#include <utility>
 
 namespace Parser {
 static QString forbidden_symbols(">-. TI={}");
 }
 using namespace Parser;
+
+std::pair<QString, QString> splitByComment(QString line) {
+    QString command = line, comment;
+    int comments_index = line.indexOf("//");
+    if (comments_index >= 0) {
+        command = line.sliced(0, comments_index);
+        comment = line.sliced(comments_index + 2);
+    }
+    return {command, comment};
+}
 
 QString removeComments(QString line) {
     int comments_index = line.indexOf("//");
@@ -95,7 +106,7 @@ CompilerError noAlphabetDefenition(int line) {
 }
 
 bool isCharsInAlphabet(int line_number, QString text,
-                       QVector<CompilerError>& errors,
+                       std::vector<CompilerError>& errors,
                        MarkovAlphabet& alphabet) {
     text = text.replace("$", "");
 
@@ -115,8 +126,9 @@ bool isCharsInAlphabet(int line_number, QString text,
     return res;
 }
 
-void parseRule(int line_number, QString line, QVector<CompilerError>& errors,
-               QVector<MarkovRule>& rules, MarkovAlphabet& alphabet) {
+void parseRule(int line_number, QString line,
+               std::vector<CompilerError>& errors,
+               std::vector<MarkovRule>& rules, MarkovAlphabet& alphabet) {
     static QRegularExpression rx_rule("^([^\\.\\->]+)(->[\\.]*)([^\\.\\->]+)$");
 
     // Read rule
@@ -142,7 +154,7 @@ void parseRule(int line_number, QString line, QVector<CompilerError>& errors,
 }
 
 bool parseAlphabet(int line_number, QString line,
-                   QVector<CompilerError>& errors, MarkovAlphabet& alphab,
+                   std::vector<CompilerError>& errors, MarkovAlphabet& alphab,
                    QString alphabet_mark) {
     QRegularExpression rx_alphabet("^" + alphabet_mark +
                                    "[\\s]*=[\\s]*\\{([^\\{\\}]*)\\}$");
@@ -197,22 +209,28 @@ bool parseAlphabet(int line_number, QString line,
 
 bool MarkovParser::parseSourceCode(QString source_code,
                                    MarkovAlgorithm& algorithm,
-                                   QVector<CompilerError>& errors) {
+                                   std::vector<CompilerError>& errors,
+                                   std::vector<Comment>& comments) {
     bool first_rule_is_readed = false;
     bool T_alphabet = false;
     bool I_alphabet = false;
-    QStringList lines = source_code.split(QRegularExpression("[\r\n]"));
+    QStringList lines = source_code.split(QRegularExpression("(\\r\\n|\\n)"));
 
     errors.clear();
 
-    // QVector<QString> alphabet;
     MarkovAlphabet alphabet(true);
     MarkovAlphabet input_alphabet(true);
-    QVector<MarkovRule> rules;
+    std::vector<MarkovRule> rules;
 
     for (int i = 0; i < lines.size(); ++i) {
         int line_number = i + 1;
-        QString line = trim(removeComments(lines[i]));
+        auto [line, comment] = splitByComment(lines[i]);
+        if (!comment.isEmpty()) {
+            comments.push_back({.line = static_cast<size_t>(line_number),
+                                .offset = static_cast<size_t>(line.size() + 2),
+                                .content = comment});
+        }
+        line = trim(line);
 
         if (line.size() > 0) {
             bool readed = false;

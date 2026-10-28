@@ -1,5 +1,7 @@
 #include "FileManager.h"
 
+#include <qfiledialog.h>
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFileDialog>
@@ -56,6 +58,7 @@ bool FileManager::save() {
 }
 
 bool FileManager::saveAs() {
+    QFileDialog dlg;
     QString file_name = QFileDialog::getSaveFileName(
         MainWindow::getInstance(), tr("Save As"), "", tr("Yad File (*.yad)"));
 
@@ -73,8 +76,11 @@ void FileManager::newFile() {
 }
 
 bool FileManager::saveToFile(QString file_name) {
+    if (!file_name.endsWith(".yad")) {
+        file_name += ".yad";
+    }
     QString source_code = SourceCodeManager::getInstance()->getSourceCode();
-    QVector<QString> history = HistoryManager::getInstance()->getHistory();
+    std::vector<QString> history = HistoryManager::getInstance()->getHistory();
 
     YadFile file(source_code, history);
 

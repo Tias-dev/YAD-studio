@@ -6,15 +6,17 @@ CompilerError::CompilerError(const QString& title, const QString& description,
       _description(description),
       _error_number(error_number),
       _line_numer(line_numer) {}
-int CompilerError::getErrorNumber() { return _error_number; }
+int CompilerError::getErrorNumber() const { return _error_number; }
 
-int CompilerError::getLineNumber() { return _line_numer; }
+int CompilerError::getLineNumber() const { return _line_numer; }
 
-const QString& CompilerError::getErrorTitle() { return _title; }
+const QString& CompilerError::getErrorTitle() const { return _title; }
 
-const QString& CompilerError::getErrorDescription() { return _description; }
+const QString& CompilerError::getErrorDescription() const {
+    return _description;
+}
 
-const QString CompilerError::getFullErrorInfo() {
+const QString CompilerError::getFullErrorInfo() const {
     return _title + ": " + _description;
 }
 

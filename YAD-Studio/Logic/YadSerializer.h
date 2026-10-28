@@ -8,44 +8,30 @@
 #include <QString>
 #include <vector>
 
+#include "Comment.h"
+#include "YadFile.h"
+
 /**
  * @class YadFileSerializer
  * @brief Serializes and deserializes NAM program
  * in JSON format
  */
-class YadFileSerializer {
+class YadSerializer {
    public:
-    YadFileSerializer(QString file_name);
-
-    /**
-     * @class Comment
-     * @brief Contains comment with position
-     */
-    struct Comment {
-        size_t line, offset;
-        QString content;
-    };
+    YadSerializer(QString file_name);
 
     /**
      * @brief Serializes program
      *
      * @param program
      */
-    void Serialize(const MarkovAlgorithm& program,
-                   const std::vector<Comment>& comments,
-                   const std::vector<QString>& history) const;
-
-    struct DeserializeResult {
-        MarkovAlgorithm program;
-        std::vector<Comment> comments;
-        std::vector<QString> history;
-    };
+    void Serialize(const YadFile& yad_file) const;
     /**
      * @brief Deserialize program
      *
      * @return structured program data
      */
-    DeserializeResult Deserialize() const;
+    YadFile Deserialize() const;
 
    private:
     /**

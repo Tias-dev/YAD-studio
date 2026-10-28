@@ -1,9 +1,10 @@
-#include "YadFileSerializer.h"
+#include "YadSerializer.h"
 
 #include <qjsonarray.h>
 #include <qjsondocument.h>
 #include <qjsonobject.h>
 #include <qjsonvalue.h>
+#include <qobject.h>
 #include <qset.h>
 
 #include <QByteArray>
@@ -17,26 +18,94 @@
 
 #include "MarkovAlgorithm.h"
 #include "MarkovAlphabet.h"
+#include "MarkovParser.h"
 #include "MarkovRule.h"
+#include "YadFile.h"
 
-YadFileSerializer::YadFileSerializer(QString file_name)
-    : file_name_(file_name) {}
+YadSerializer::YadSerializer(QString file_name) : file_name_(file_name) {
+    if (!file_name_.endsWith(".yad")) {
+        file_name_ += ".yad";
+    }
+}
 
-void YadFileSerializer::Serialize(const MarkovAlgorithm& program,
-                                  const std::vector<Comment>& comments,
-                                  const std::vector<QString>& history) const {
+void YadSerializer::Serialize(const YadFile& yad_file) const {
+    qDebug() << "Saving to file: " << file_name_;
+
+    MarkovAlgorithm program;
+    std::vector<CompilerError> errors;
+    std::vector<Comment> comments;
+    MarkovParser::parseSourceCode(yad_file.getSourceCode(), program, errors,
+                                  comments);
+    if (!errors.empty()) {
+        QString errorData;
+        for (const CompilerError& error : errors) {
+            errorData += QString(error.getFullErrorInfo()) + '\n';
+        }
+        throw std::runtime_error("Program is invalid! Errors\n" +
+                                 errorData.toStdString());
+    }
     NAMClosure closure;
     closure.comments = comments;
 
     closure.input_alphabet = program.getInputAlphabet();
     closure.runtime_alphabet = program.getAlphabet();
     closure.rules = program.getRules();
-    closure.history = history;
+    closure.history = yad_file.getHistory();
 
     Serialize_(closure);
 }
 
-YadFileSerializer::DeserializeResult YadFileSerializer::Deserialize() const {
+namespace {
+QString RestoreSourceCode(const MarkovAlphabet& runtime_alphabet,
+                          const MarkovAlphabet& input_alphabet,
+                          const std::vector<MarkovRule>& rules,
+                          const std::vector<Comment>& comments) {
+    int min_rule_number = std::begin(rules)->getLineNumber();
+    for (const MarkovRule& rule : rules) {
+        min_rule_number = std::min(min_rule_number, rule.getLineNumber());
+    }
+    size_t line_number_offset = 3;
+    if (min_rule_number > 2) {
+        line_number_offset = 0;
+    }
+
+    std::vector<QString> lines;
+    for (const MarkovRule& rule : rules) {
+        size_t line_number = line_number_offset + rule.getLineNumber();
+        while (lines.size() < line_number) {
+            lines.push_back(QString{});
+        }
+        QString rule_string = rule.getLeftPart() + " ";
+        rule_string += (rule.isFinalRule() ? "->." : "->");
+        rule_string += " " + rule.getRightPart();
+        lines[line_number] = rule_string;
+    }
+
+    auto join_by = [](auto iterable, QString sep = ", ") {
+        auto it = std::begin(iterable), end = std::end(iterable);
+        QString result = *it;
+        ++it;
+        while (it != end) {
+            result += sep + (*it);
+            ++it;
+        }
+        return result;
+    };
+
+    lines[0] = "T = { " + join_by(runtime_alphabet.getAlphabet(), ", ") + " }";
+    lines[1] = "I = { " + join_by(input_alphabet.getAlphabet(), ", ") + " }";
+
+    for (const Comment& comment : comments) {
+        while (lines.size() < comment.line) {
+            lines.push_back(QString{});
+        }
+        if (!lines[comment.line].isEmpty()) {
+            // TODO: Add comment setting and offset recalculating
+        }
+    }
+}
+}  // namespace
+YadFile YadSerializer::Deserialize() const {
     NAMClosure closure = Deserialize_();
 
     return DeserializeResult{
@@ -46,7 +115,7 @@ YadFileSerializer::DeserializeResult YadFileSerializer::Deserialize() const {
         .history = closure.history};
 }
 
-void YadFileSerializer::Serialize_(const NAMClosure& closure) const {
+void YadSerializer::Serialize_(const NAMClosure& closure) const {
     QJsonArray rules;
     for (const MarkovRule& rule : closure.rules) {
         QJsonObject rule_object;
@@ -153,7 +222,7 @@ T GetKey(const QJsonObject& object, const char* obj_name,
 
 }  // namespace
 
-YadFileSerializer::NAMClosure YadFileSerializer::Deserialize_() const {
+YadSerializer::NAMClosure YadSerializer::Deserialize_() const {
     QFile file{file_name_};
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         throw std::runtime_error{

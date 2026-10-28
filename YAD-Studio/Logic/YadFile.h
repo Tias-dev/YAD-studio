@@ -13,7 +13,7 @@ class YadFile {
      * @param source_code complete source code (with comments)
      * @param history history of launches
      */
-    YadFile(QString source_code, QVector<QString> history);
+    YadFile(QString source_code, std::vector<QString> history);
 
     /**
      * @brief Returns source code
@@ -25,7 +25,7 @@ class YadFile {
      * @brief Returns history of launches
      * @return
      */
-    QVector<QString> getHistory() const;
+    std::vector<QString> getHistory() const;
 
     /**
      * @brief  method saves to file source code and history to a given file.
@@ -52,7 +52,7 @@ class YadFile {
     /**
      * @brief history of launches
      */
-    QVector<QString> _history;
+    std::vector<QString> _history;
 };
 
 #endif  // YADFILE_H

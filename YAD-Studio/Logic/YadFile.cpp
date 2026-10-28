@@ -1,38 +1,25 @@
 #include "YadFile.h"
 
-#include <qobject.h>
-
 #include <QDebug>
 #include <QFile>
 #include <QRegularExpression>
 #include <QStringList>
 #include <stdexcept>
 
-YadFile::YadFile(QString source_code, QVector<QString> history)
+#include "CompilerError.h"
+#include "MarkovAlgorithm.h"
+#include "MarkovParser.h"
+#include "YadFileSerializer.h"
+
+YadFile::YadFile(QString source_code, std::vector<QString> history)
     : _source_code(source_code), _history(history) {}
 static QString history_start("//=========History========//");
 
 QString YadFile::getSourceCode() const { return _source_code; }
 
-QVector<QString> YadFile::getHistory() const { return _history; }
+std::vector<QString> YadFile::getHistory() const { return _history; }
 
-void YadFile::saveToFile(QString file_name) const {
-    qDebug() << "Saved to file: " << file_name;
-
-    QFile file(file_name);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QString error = QObject::tr("Can't open file for writing.");
-        throw std::runtime_error(error.toStdString().c_str());
-    }
-
-    QTextStream out(&file);
-    out << _source_code << "\n\n\n";
-
-    out << history_start << '\n';
-    for (int i = 0; i < _history.size(); ++i) {
-        out << "//" << _history[i] << '\n';
-    }
-}
+void YadFile::saveToFile(QString file_name) const {}
 
 QString rstrip(const QString& str) {
     int n = str.size() - 1;
@@ -75,7 +62,7 @@ YadFile YadFile::readFromFile(QString file_name) {
     qDebug() << "History: " << history_line;
 
     // QString source = "//Comment\nT = {a,b, c}\n aa->b \n bb->a\n\n";
-    QVector<QString> history;
+    std::vector<QString> history;
 
     QStringList lines = history_line.split(QRegularExpression("[\r\n]"));
     for (int i = 0; i < lines.size(); ++i) {

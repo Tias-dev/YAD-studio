@@ -1,5 +1,7 @@
 #include "HistoryManager.h"
 
+#include <algorithm>
+
 HistoryManager* HistoryManager::_instance = nullptr;
 
 HistoryManager::HistoryManager() {}
@@ -7,19 +9,20 @@ HistoryManager* HistoryManager::getInstance() {
     if (_instance == nullptr) _instance = new HistoryManager();
     return _instance;
 }
-QVector<QString> HistoryManager::getHistory() { return _history; }
+std::vector<QString> HistoryManager::getHistory() { return _history; }
 
 void HistoryManager::addToHistory(QString input_word) {
-    if (input_word.size() && !_history.contains(input_word))
+    if (input_word.size() && std::find(std::begin(_history), std::end(_history),
+                                       input_word) == std::end(_history)) {
         _history.push_back(input_word);
+    }
 
     emit historyChanged(_history);
 }
 
 void HistoryManager::removeFromHistory(QString input_word) {
-    int i = _history.indexOf(input_word);
-    if (i != -1) _history.remove(i);
-
+    _history.erase(
+        std::find(std::begin(_history), std::end(_history), input_word));
     emit historyChanged(_history);
 }
 
@@ -29,10 +32,17 @@ void HistoryManager::clearHistory() {
     emit historyChanged(_history);
 }
 
-void HistoryManager::addToHistory(QVector<QString> words) {
-    for (int i = 0; i < words.size(); ++i) {
-        if (!_history.contains(words[i])) _history.push_back(words[i]);
+void HistoryManager::addToHistory(std::vector<QString> words) {
+    bool new_history_items = false;
+    for (const QString& word : words) {
+        if (std::find(std::begin(_history), std::end(_history), word) ==
+            std::end(_history)) {
+            _history.push_back(word);
+            new_history_items = true;
+        }
     }
 
-    emit historyChanged(_history);
+    if (new_history_items) {
+        emit historyChanged(_history);
+    }
 }
