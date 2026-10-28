@@ -32,15 +32,6 @@ void CompilerError::setErrorDescription(const QString& description) {
 
 namespace errors {
 
-CompilerError NotInAlphabetError(int line, QString letter) {
-    QString title = QObject::tr("Symbol '%1' is not in alphabet").arg(letter);
-    QString description = QObject::tr(
-                              "You can add it to runtime alphabet in field "
-                              "above editing window. ")
-                              .arg(letter, alphabet.getSource());
-
-    return CompilerError(title, description, 200, line);
-}
 CompilerError ForbiddenRuleError(int line, QString letter) {
     QString title =
         QObject::tr("Symbol '%1' can't be used in rule").arg(letter);
@@ -75,5 +66,12 @@ CompilerError EmptySymbolInAlphabet(int line) {
         "'$' means an empty symbol and is already a part of alphabet.");
 
     return CompilerError(title, description, 201, line);
+}
+CompilerError NotInAlphabetError(int line, QString letter) {
+    QString title = QObject::tr("Symbol '%1' is not in alphabet").arg(letter);
+    QString description =
+        QObject::tr("You can add it to alphabet in the field above");
+
+    return CompilerError(title, description, 200, line);
 }
 }  // namespace errors

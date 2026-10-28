@@ -1,35 +1,75 @@
 #include "AlphabetWidget.h"
 
-#include <qlogging.h>
-#include <qtextedit.h>
+#include <qobject.h>
+#include <qwidget.h>
 
-AlphabetWidget::AlphabetWidget(QWidget* parent) {
-    connect(this, &QLineEdit::textChanged, this, [this]() {
-        qDebug() << "Text changed to: " << this->text() << '\n';
-        QString new_text = this->text();
-        if (new_text == alphabet_) {
+#include <QChar>
+#include <QSet>
+#include <QTextEdit>
+#include <QtLogging>
+
+#include "AlphabetsManager.h"
+#include "MarkovAlphabet.h"
+#include "ui_AlphabetWidget.h"
+
+AlphabetWidget::AlphabetWidget(QWidget* parent)
+    : QWidget(parent), ui(new Ui::AlphabetWidget) {
+    ui->setupUi(this);
+    connect(ui->letters, &QLineEdit::textChanged, this, [this]() {
+        QSet<QChar> letters;
+        for (const QChar c : this->ui->letters->text()) {
+            letters.insert(c);
+        }
+        if (letters == alphabet_.getAlphabet()) {
             return;
         }
-        alphabet_ = new_text;
-        emit onAlphabetChanged(alphabet_);
+        alphabet_ = MarkovAlphabet{letters};
+        if (type_ == AlphabetType::kRuntime) {
+            AlphabetsManager::Instance().SetRuntimeAlphabet(alphabet_);
+        }
+        if (type_ == AlphabetType::kInput) {
+            AlphabetsManager::Instance().SetInputAlphabet(alphabet_);
+        }
     });
 }
-AlphabetWidget::~AlphabetWidget() {};
+AlphabetWidget::~AlphabetWidget() { delete ui; };
 
 void AlphabetWidget::SetAlphabetType(AlphabetType new_alphabet_type) {
-    switch (new_alphabet_type) {
+    if (type_ != AlphabetType::kNone) {
+        throw std::logic_error("Redefinition of alphabet type is not allowed!");
+    }
+
+    type_ = new_alphabet_type;
+    switch (type_) {
         case AlphabetType::kInput:
-            return setPlaceholderText(
+            ui->name->setText("Input Alphabet");
+            return ui->letters->setPlaceholderText(
                 "Limit input messages(default same as runtime alphabet)");
         case AlphabetType::kRuntime:
-            return setPlaceholderText(
+            ui->name->setText("Runtime Alphabet");
+            return ui->letters->setPlaceholderText(
                 "Letters allowed to be used(must be set)");
+        default:
+            throw std::logic_error(
+                "Setting kNone alphabet type in not allowed!");
     }
 }
 
-void AlphabetWidget::SetAlphabit(QString new_alphabet) {
-    if (new_alphabet == alphabet_) {
+void AlphabetWidget::SetError(QString message) {
+    ui->error->setText(message);
+    ui->letters->setStyleSheet(
+        "QLineEdit { border: 1px solid red; border-radius: 4px; }");
+}
+
+void AlphabetWidget::ClearError() {
+    ui->error->setText("");
+    ui->letters->setStyleSheet("");
+}
+
+void AlphabetWidget::SetAlphabet(MarkovAlphabet new_alphabet) {
+    if (new_alphabet.getAlphabet() == alphabet_.getAlphabet()) {
         return;
     }
-    emit textChanged(new_alphabet);
+    alphabet_ = new_alphabet;
+    ui->letters->setText(alphabet_.getAllChars());
 }

@@ -256,12 +256,6 @@ MainWindow::MainWindow(QWidget* parent)
     connect(ui->actionDebug_Step_By_Step, SIGNAL(triggered()), ui->input,
             SLOT(runWithDebugStepByStepClicked()));
 
-    // Connect runtime/input alphabets changes to markov editor view
-    connect(ui->alphabets, &AlphabetsDisplayWidget::onRuntimeAlphabetChanged,
-            ui->editorWindow, &EditorWindowWidget::newRuntimeAlphabet);
-    connect(ui->alphabets, &AlphabetsDisplayWidget::onInputAlphabetChanged,
-            ui->editorWindow, &EditorWindowWidget::newInputAlphabet);
-
     // Read file to open from command line
     QStringList arguments = QCoreApplication::arguments();
     if (arguments.size() >= 2) {

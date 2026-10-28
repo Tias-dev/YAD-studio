@@ -4,6 +4,8 @@
 #include <QWidget>
 
 #include "Logic/MarkovAlgorithm.h"
+#include "MarkovAlphabet.h"
+#include "MarkovEditorWidget.h"
 
 namespace Ui {
 class EditorWindowWidget;
@@ -33,9 +35,6 @@ class EditorWindowWidget : public QWidget {
 
     void showLineHighlight(int line_number);
     void removeLineHighlight();
-
-    void newRuntimeAlphabet(QString new_alphabet);
-    void newInputAlphabet(QString new_alphabet);
 
    signals:
     void canRun(bool);

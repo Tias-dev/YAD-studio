@@ -34,12 +34,10 @@ class CompilerError {
 };
 
 namespace errors {
-CompilerError NotInAlphabetError(int line, QString letter);
 CompilerError ForbiddenRuleError(int line, QString letter);
 CompilerError WrongRuleDefenition(int line, QString text);
-CompilerError CharAlreadyInAlphabet(int line, QString letter);
 CompilerError EmptySymbolInAlphabet(int line);
-
+CompilerError NotInAlphabetError(int line, QString letter);
 }  // namespace errors
 
 #endif  // COMPILERERROR_H

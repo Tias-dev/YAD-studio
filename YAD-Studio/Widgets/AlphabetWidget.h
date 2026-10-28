@@ -3,21 +3,29 @@
 
 #include <QLineEdit>
 
-class AlphabetWidget : public QLineEdit {
+#include "MarkovAlphabet.h"
+namespace Ui {
+class AlphabetWidget;
+}
+
+class AlphabetWidget : public QWidget {
     Q_OBJECT
    public:
     explicit AlphabetWidget(QWidget* parent = 0);
     ~AlphabetWidget();
 
-    enum class AlphabetType { kRuntime, kInput };
+    enum class AlphabetType { kNone, kRuntime, kInput };
 
     void SetAlphabetType(AlphabetType new_alphabet_type);
-    void SetAlphabit(QString new_alphabet);
-   signals:
-    void onAlphabetChanged(QString new_alphabet);
+    void SetAlphabet(MarkovAlphabet new_alphabet);
+
+    void SetError(QString message);
+    void ClearError();
 
    private:
-    QString alphabet_;
+    AlphabetType type_ = AlphabetType::kNone;
+    MarkovAlphabet alphabet_;
+    Ui::AlphabetWidget* ui;
 };
 
 #endif  // !ALPHABET_WIDGET_H

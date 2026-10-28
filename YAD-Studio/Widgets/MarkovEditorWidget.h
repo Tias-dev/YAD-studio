@@ -21,18 +21,6 @@ class MarkovEditorWidget : public QPlainTextEdit {
     int lineNumberAreaWidth();
     void breakPointPress(QMouseEvent* event);
 
-    /**
-     * @brief when any changes where done with runtime alphabet
-     * @param new_alphabet
-     */
-    void newRuntimeAlphabet(QString new_alphabet);
-
-    /**
-     * @brief when any changes where done with input alphabet
-     * @param new_alphabet
-     */
-    void newInputAlphabet(QString new_alphabet);
-
    public slots:
     /**
      * @brief when source code from file is loaded this slot will be called.

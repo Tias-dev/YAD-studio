@@ -1,6 +1,5 @@
 #include "EditorWindowWidget.h"
 
-#include "LineInfoWidget.h"
 #include "MarkovEditorWidget.h"
 #include "ui_EditorWindowWidget.h"
 
@@ -35,14 +34,6 @@ EditorWindowWidget::EditorWindowWidget(QWidget* parent)
 }
 
 EditorWindowWidget::~EditorWindowWidget() { delete ui; }
-
-void EditorWindowWidget::newInputAlphabet(QString new_alphabet) {
-    ui->markov_program_editor->newInputAlphabet(new_alphabet);
-}
-
-void EditorWindowWidget::newRuntimeAlphabet(QString new_alphabet) {
-    ui->markov_program_editor->newRuntimeAlphabet(new_alphabet);
-}
 
 void EditorWindowWidget::showLineHighlight(int line_number) {
     ui->markov_program_editor->showLineHighlight(line_number);

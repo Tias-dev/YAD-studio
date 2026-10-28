@@ -10,6 +10,7 @@
 #include <QRegularExpression>
 #include <QTextBlock>
 
+#include "AlphabetsManager.h"
 #include "CompilerError.h"
 #include "Logic/MarkovParser.h"
 #include "MarkovAlgorithm.h"
@@ -60,32 +61,19 @@ MarkovEditorWidget::MarkovEditorWidget(QWidget* parent)
     connect(this, SIGNAL(cursorPositionChanged()), this,
             SLOT(highlightCurrentLine()));
 
+    connect(&AlphabetsManager::Instance(),
+            &AlphabetsManager::OnNewInputAlphabet, this,
+            [this](MarkovAlphabet new_alphabet) {
+                _input_alphabet = new_alphabet;
+            });
+    connect(&AlphabetsManager::Instance(),
+            &AlphabetsManager::OnNewRuntimeAlphabet, this,
+            [this](MarkovAlphabet new_alphabet) {
+                _runtime_alphabet = new_alphabet;
+            });
+
     updateLineNumberAreaWidth();
     highlightCurrentLine();
-}
-
-void MarkovEditorWidget::newRuntimeAlphabet(QString new_alphabet) {
-    QSet<QChar> letters;
-    for (const QChar c : new_alphabet) {
-        if (letters.contains(c)) {
-            _errors.push_back(errors::CharAlreadyInAlphabet(-1, c));
-        }
-        letters.insert(c);
-    }
-    _runtime_alphabet = MarkovAlphabet{letters};
-    _algorithm.setAlphabet(_runtime_alphabet);
-}
-
-void MarkovEditorWidget::newInputAlphabet(QString new_alphabet) {
-    QSet<QChar> letters;
-    for (const QChar c : new_alphabet) {
-        if (letters.contains(c)) {
-            _errors.push_back(errors::CharAlreadyInAlphabet(-1, c));
-        }
-        letters.insert(c);
-    }
-    _input_alphabet = MarkovAlphabet{letters};
-    _algorithm.setInputAlphabet(_input_alphabet);
 }
 
 MarkovEditorWidget::MarkovHighliter::MarkovHighliter(MarkovEditorWidget* editor)

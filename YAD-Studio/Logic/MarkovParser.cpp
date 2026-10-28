@@ -23,16 +23,6 @@ QString removeComments(QString line) {
 
 QString trim(QString line) { return line.trimmed(); }
 
-CompilerError wrongAlphabetChar(int line, QString letter) {
-    QString title =
-        QObject::tr("Symbol '%1' can't be used in alphabet").arg(letter);
-    QString description = QObject::tr(
-        "In alphabet can be used only characters. Examples: 'T = {a, b, c, "
-        "d}'.");
-
-    return CompilerError(title, description, 201, line);
-}
-
 bool isCharsInAlphabet(int line_number, QString text,
                        std::vector<CompilerError>& errors,
                        const MarkovAlphabet& alphabet) {

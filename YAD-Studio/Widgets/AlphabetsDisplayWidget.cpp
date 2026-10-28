@@ -10,13 +10,42 @@ AlphabetsDisplayWidget::AlphabetsDisplayWidget(QWidget* parent)
     ui->runtime_alphabet->SetAlphabetType(
         AlphabetWidget::AlphabetType::kRuntime);
 
-    connect(ui->runtime_alphabet, &AlphabetWidget::onAlphabetChanged, this,
-            [this](QString new_alphabet) {
-                emit onRuntimeAlphabetChanged(new_alphabet);
+    connect(&AlphabetsManager::Instance(),
+            &AlphabetsManager::OnNewAlphabetError, this,
+            [this](AlphabetsManager::AlphabetType type,
+                   AlphabetsManager::AlphabetErrorCode code, QString message) {
+                if (type == AlphabetsManager::AlphabetType::kRuntime) {
+                    runtime_alphabet_errors_[code] = message;
+                    ui->runtime_alphabet->SetError(message);
+                }
+                if (type == AlphabetsManager::AlphabetType::kInput) {
+                    input_alphabet_errors_[code] = message;
+                    ui->input_alphabet->SetError(message);
+                }
             });
-    connect(ui->input_alphabet, &AlphabetWidget::onAlphabetChanged, this,
-            [this](QString new_alphabet) {
-                emit onInputAlphabetChanged(new_alphabet);
+
+    connect(&AlphabetsManager::Instance(),
+            &AlphabetsManager::OnRemovedAlphabetError, this,
+            [this](AlphabetsManager::AlphabetType type,
+                   AlphabetsManager::AlphabetErrorCode code) {
+                if (type == AlphabetsManager::AlphabetType::kRuntime) {
+                    runtime_alphabet_errors_.erase(code);
+                    if (auto it = std::begin(runtime_alphabet_errors_);
+                        it != std::end(runtime_alphabet_errors_)) {
+                        ui->runtime_alphabet->SetError(it->second);
+                    } else {
+                        ui->runtime_alphabet->ClearError();
+                    }
+                }
+                if (type == AlphabetsManager::AlphabetType::kInput) {
+                    input_alphabet_errors_.erase(code);
+                    if (auto it = std::begin(input_alphabet_errors_);
+                        it != std::end(input_alphabet_errors_)) {
+                        ui->input_alphabet->SetError(it->second);
+                    } else {
+                        ui->input_alphabet->ClearError();
+                    }
+                }
             });
 }
 
