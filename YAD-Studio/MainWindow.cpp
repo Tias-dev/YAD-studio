@@ -19,9 +19,6 @@
 #include "Widgets/RunWidget.h"
 #include "ui_MainWindow.h"
 
-void registerFileType(const QString& documentId, const QString& fileTypeName,
-                      const QString& fileExtension, qint32 appIconIndex = 0);
-
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
@@ -42,9 +39,6 @@ MainWindow::MainWindow(QWidget* parent)
 
     ui->debugRun->setVisible(false);
     ui->runWidget->setVisible(false);
-
-    registerFileType(tr("Yad.Markov.File"), tr("Markov Algorithm File"), ".yad",
-                     1);
 
     updateDebugMenu();
 
@@ -420,20 +414,3 @@ void MainWindow::closeEvent(QCloseEvent* event) {
 
 MainWindow* MainWindow::_window = nullptr;
 MainWindow* MainWindow::getInstance() { return _window; }
-
-#include <QSettings>
-void registerFileType(const QString& documentId, const QString& fileTypeName,
-                      const QString& fileExtension, qint32 appIconIndex) {
-    QString exe_name = QCoreApplication::applicationFilePath();
-    exe_name = exe_name.replace("/", "\\");
-    QSettings settings(QString("HKEY_CURRENT_USER\\SOFTWARE\\Classes"),
-                       QSettings::NativeFormat);
-
-    settings.setValue(QString("%1/Default").arg(fileExtension), documentId);
-
-    settings.setValue(QString("%1/Default").arg(documentId), fileTypeName);
-    settings.setValue(QString("%1/DefaultIcon/Default").arg(documentId),
-                      QString("\"%1\",%2").arg(exe_name).arg(appIconIndex));
-    settings.setValue(QString("%1/shell/Open/command/Default").arg(documentId),
-                      "\"" + exe_name + "\" \"%1\"");
-}

@@ -62,7 +62,7 @@ class MarkovAlgorithm {
      * @param rules list of rules
      */
     MarkovAlgorithm(MarkovAlphabet alphabet = MarkovAlphabet(),
-                    QVector<MarkovRule> rules = QVector<MarkovRule>(),
+                    std::vector<MarkovRule> rules = std::vector<MarkovRule>(),
                     MarkovAlphabet input_alphabet = MarkovAlphabet(true));
 
     /**
@@ -85,7 +85,7 @@ class MarkovAlgorithm {
      * @brief Returns list of rules
      * @return
      */
-    QVector<MarkovRule> getRules() const;
+    std::vector<MarkovRule> getRules() const;
 
    private:
     /**
@@ -97,7 +97,7 @@ class MarkovAlgorithm {
     /**
      * @brief list of rules
      */
-    QVector<MarkovRule> _rules;
+    std::vector<MarkovRule> _rules;
 };
 
 #endif  // MARKOVALGORITHM_H

@@ -24,3 +24,5 @@ build*
 compile_commands.json
 .pre-commit-config.yaml
 .cache
+result
+result-*

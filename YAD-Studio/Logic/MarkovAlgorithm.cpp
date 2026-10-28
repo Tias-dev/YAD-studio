@@ -1,7 +1,7 @@
 #include "MarkovAlgorithm.h"
 
 MarkovAlgorithm::MarkovAlgorithm(MarkovAlphabet alphabet,
-                                 QVector<MarkovRule> rules,
+                                 std::vector<MarkovRule> rules,
                                  MarkovAlphabet input_alphabet)
     : _alphabet(alphabet), _rules(rules), _input_alphabet(input_alphabet) {}
 
@@ -28,7 +28,6 @@ QString MarkovAlgorithm::useRule(QString input_word, const MarkovRule& rule) {
     QString res = "";
 
     RuleFitResult rule_fits = isRuleFits(input_word, rule);
-    rule_fits.start_index;
     res = input_word.mid(0, rule_fits.start_index);
     res += rule.getRightPart();
     res += input_word.mid(rule_fits.start_index + rule_fits.length,
@@ -55,4 +54,4 @@ const MarkovAlphabet& MarkovAlgorithm::getInputAlphabet() const {
 }
 const MarkovAlphabet& MarkovAlgorithm::getAlphabet() const { return _alphabet; }
 
-QVector<MarkovRule> MarkovAlgorithm::getRules() const { return _rules; }
+std::vector<MarkovRule> MarkovAlgorithm::getRules() const { return _rules; }
