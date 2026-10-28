@@ -34,6 +34,9 @@ class EditorWindowWidget : public QWidget {
     void showLineHighlight(int line_number);
     void removeLineHighlight();
 
+    void newRuntimeAlphabet(QString new_alphabet);
+    void newInputAlphabet(QString new_alphabet);
+
    signals:
     void canRun(bool);
     void sourceCodeChanged(QString);

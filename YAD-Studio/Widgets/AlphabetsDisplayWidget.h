@@ -14,6 +14,10 @@ class AlphabetsDisplayWidget : public QWidget {
     explicit AlphabetsDisplayWidget(QWidget* parent = nullptr);
     ~AlphabetsDisplayWidget();
 
+   signals:
+    void onRuntimeAlphabetChanged(QString new_alphabet);
+    void onInputAlphabetChanged(QString new_alphabet);
+
    private:
     Ui::AlphabetsDisplayWidget* ui;
 };

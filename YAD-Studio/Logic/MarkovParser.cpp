@@ -7,6 +7,9 @@
 #include <QRegularExpression>
 #include <QStringList>
 
+#include "CompilerError.h"
+#include "MarkovAlphabet.h"
+
 namespace Parser {
 static QString forbidden_symbols(">-. TI={}");
 }
@@ -30,73 +33,9 @@ CompilerError wrongAlphabetChar(int line, QString letter) {
     return CompilerError(title, description, 201, line);
 }
 
-CompilerError charAlreadyInAlphabet(int line, QString letter) {
-    QString title =
-        QObject::tr("Symbol '%1' added to alphabet more than once").arg(letter);
-    QString description = QObject::tr(
-        "Each symbol can be added to alphabet only once. Examples: 'T = {a, b, "
-        "c, d}'.");
-
-    return CompilerError(title, description, 204, line);
-}
-
-CompilerError emptySymbolInAlphabet(int line) {
-    QString title = QObject::tr("Symbol '$' can't be added to alphabet");
-    QString description = QObject::tr(
-        "'$' means an empty symbol and is already a part of alphabet.");
-
-    return CompilerError(title, description, 201, line);
-}
-
-CompilerError forbiddenInAlphabet(int line, QString letter) {
-    QString title =
-        QObject::tr("Symbol '%1' is forbidden to be used in alphabet")
-            .arg(letter);
-    QString description = QObject::tr(
-        "You can use any other symbol. Examples: 'T = {a, b, c, d}'.");
-
-    return CompilerError(title, description, 205, line);
-}
-
-CompilerError notInAlphabet(int line, QString letter, MarkovAlphabet alphabet) {
-    QString title = QObject::tr("Symbol '%1' is not in alphabet").arg(letter);
-    QString description =
-        QObject::tr("You can add it to alphabet. Examples: 'T = {%1, %2}'.")
-            .arg(letter, alphabet.getSource());
-
-    return CompilerError(title, description, 200, line);
-}
-
-CompilerError forbiddenInRule(int line, QString letter) {
-    QString title =
-        QObject::tr("Symbol '%1' can't be used in rule").arg(letter);
-    QString description =
-        QObject::tr("You can use any other symbol which are in alphabet.");
-
-    return CompilerError(title, description, 200, line);
-}
-
-CompilerError wrongRuleDefenition(int line, QString text) {
-    QString title = QObject::tr("Wrong rule definition");
-    QString description = QObject::tr(
-                              "Definition of rule is wrong. ('%1'). Example: "
-                              "'aa -> bb' or 'aa ->. bb'")
-                              .arg(text);
-
-    return CompilerError(title, description, 203, line);
-}
-
-CompilerError noAlphabetDefenition(int line) {
-    QString title = QObject::tr("Alphabet definition is not found");
-    QString description =
-        QObject::tr("Alphabet definition example: 'T = {a,b,c}'");
-
-    return CompilerError(title, description, 202, line);
-}
-
 bool isCharsInAlphabet(int line_number, QString text,
-                       QVector<CompilerError>& errors,
-                       MarkovAlphabet& alphabet) {
+                       std::vector<CompilerError>& errors,
+                       const MarkovAlphabet& alphabet) {
     text = text.replace("$", "");
 
     bool res = true;
@@ -104,9 +43,9 @@ bool isCharsInAlphabet(int line_number, QString text,
         QChar ch = text[i];
         if (!alphabet.isInAlphabet(ch)) {
             if (forbidden_symbols.indexOf(ch) >= 0)
-                errors.push_back(forbiddenInRule(line_number, ch));
+                errors.push_back(errors::ForbiddenRuleError(line_number, ch));
             else
-                errors.push_back(notInAlphabet(line_number, ch, alphabet));
+                errors.push_back(errors::NotInAlphabetError(line_number, ch));
 
             res = false;
             break;
@@ -115,15 +54,16 @@ bool isCharsInAlphabet(int line_number, QString text,
     return res;
 }
 
-void parseRule(int line_number, QString line, QVector<CompilerError>& errors,
-               QVector<MarkovRule>& rules, MarkovAlphabet& alphabet) {
+void parseRule(int line_number, QString line,
+               std::vector<CompilerError>& errors,
+               std::vector<MarkovRule>& rules, const MarkovAlphabet& alphabet) {
     static QRegularExpression rx_rule("^([^\\.\\->]+)(->[\\.]*)([^\\.\\->]+)$");
 
     // Read rule
     QRegularExpressionMatch match = rx_rule.match(line);
     int pos = match.lastCapturedIndex();
     if (pos < 0) {
-        errors.push_back(wrongRuleDefenition(line_number, line));
+        errors.push_back(errors::WrongRuleDefenition(line_number, line));
     } else {
         QString left_part = trim(match.captured(1));
         QString right_part = trim(match.captured(3));
@@ -141,74 +81,15 @@ void parseRule(int line_number, QString line, QVector<CompilerError>& errors,
     }
 }
 
-bool parseAlphabet(int line_number, QString line,
-                   QVector<CompilerError>& errors, MarkovAlphabet& alphab,
-                   QString alphabet_mark) {
-    QRegularExpression rx_alphabet("^" + alphabet_mark +
-                                   "[\\s]*=[\\s]*\\{([^\\{\\}]*)\\}$");
-
-    bool res = false;
-    // Read alphabet
-    QRegularExpressionMatch match = rx_alphabet.match(line);
-    int pos = match.lastCapturedIndex();
-    if (pos < 0) {
-        // Error
-        res = false;
-        // errors.push_back(noAlphabetDefenition(line_number));
-    } else {
-        QString letters_str = trim(match.captured(1));
-#ifndef QT_NO_DEBUG
-        qDebug() << "Letters: " << letters_str;
-#endif
-        QSet<QChar> alphabet_q;
-        if (letters_str.size() > 0) {
-            QStringList letters = letters_str.split(",");
-            for (int j = 0; j < letters.size(); ++j) {
-                QString letter = trim(letters[j]);
-
-                if (letter.size() != 1) {
-                    errors.push_back(wrongAlphabetChar(line_number, letter));
-                } else if (letter == "$") {
-                    errors.push_back(emptySymbolInAlphabet(line_number));
-                } else if (forbidden_symbols.indexOf(letter) >= 0) {
-                    errors.push_back(forbiddenInAlphabet(line_number, letter));
-                } else {
-                    // alphabet.push_back(letter);
-                    QChar ch = letter[0];
-                    if (alphabet_q.find(ch) != alphabet_q.end()) {
-                        errors.push_back(
-                            charAlreadyInAlphabet(line_number, letter));
-                    } else {
-                        alphabet_q.insert(ch);
-                    }
-                }
-            }
-        }
-
-        alphab = MarkovAlphabet(alphabet_q);
-        alphab.setSource(letters_str);
-        res = true;
-#ifndef QT_NO_DEBUG
-        qDebug() << "Alphabet: " << alphabet_q;
-#endif
-    }
-    return res;
-}
-
-bool MarkovParser::parseSourceCode(QString source_code,
-                                   MarkovAlgorithm& algorithm,
-                                   QVector<CompilerError>& errors) {
+std::vector<MarkovRule> MarkovParser::parseSourceCode(
+    QString source_code, const MarkovAlphabet& runtime_alphabet,
+    std::vector<CompilerError>& errors) {
     bool first_rule_is_readed = false;
-    bool T_alphabet = false;
-    bool I_alphabet = false;
     QStringList lines = source_code.split(QRegularExpression("[\r\n]"));
 
     errors.clear();
 
-    // QVector<QString> alphabet;
-    MarkovAlphabet alphabet(true);
-    MarkovAlphabet input_alphabet(true);
-    QVector<MarkovRule> rules;
+    std::vector<MarkovRule> rules;
 
     for (int i = 0; i < lines.size(); ++i) {
         int line_number = i + 1;
@@ -216,35 +97,13 @@ bool MarkovParser::parseSourceCode(QString source_code,
 
         if (line.size() > 0) {
             bool readed = false;
-            if (!first_rule_is_readed) {
-                if (!T_alphabet) {
-                    T_alphabet =
-                        parseAlphabet(line_number, line, errors, alphabet, "T");
-                    readed = T_alphabet;
-                } else if (!I_alphabet) {
-                    I_alphabet = parseAlphabet(line_number, line, errors,
-                                               input_alphabet, "I");
-
-                    foreach (QChar ch, input_alphabet.getAlphabet()) {
-                        if (!alphabet.isInAlphabet(ch)) {
-                            errors.push_back(
-                                notInAlphabet(line_number, ch, alphabet));
-                            break;
-                        }
-                    }
-
-                    readed = I_alphabet;
-                }
-            }
 
             if (!readed) {
-                parseRule(line_number, line, errors, rules, alphabet);
+                parseRule(line_number, line, errors, rules, runtime_alphabet);
                 first_rule_is_readed = (rules.size() > 0);
             }
         }
     }
 
-    algorithm = MarkovAlgorithm(alphabet, rules, input_alphabet);
-
-    return errors.size() == 0;
+    return rules;
 }

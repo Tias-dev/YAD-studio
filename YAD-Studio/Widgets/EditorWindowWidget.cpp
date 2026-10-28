@@ -8,56 +8,66 @@ EditorWindowWidget::EditorWindowWidget(QWidget* parent)
     : QWidget(parent), ui(new Ui::EditorWindowWidget) {
     ui->setupUi(this);
 
-    connect(ui->plainTextEdit, SIGNAL(canRun(bool)), this,
+    connect(ui->markov_program_editor, SIGNAL(canRun(bool)), this,
             SIGNAL(canRun(bool)));
-    connect(ui->plainTextEdit, SIGNAL(sourceCodeChanged(QString)), this,
+    connect(ui->markov_program_editor, SIGNAL(sourceCodeChanged(QString)), this,
             SIGNAL(sourceCodeChanged(QString)));
-    connect(ui->plainTextEdit, SIGNAL(markovAlgorithmChanged(MarkovAlgorithm)),
-            this, SIGNAL(markovAlgorithmChanged(MarkovAlgorithm)));
-    connect(ui->plainTextEdit, SIGNAL(redoAvailable(bool)), this,
+    connect(ui->markov_program_editor,
+            SIGNAL(markovAlgorithmChanged(MarkovAlgorithm)), this,
+            SIGNAL(markovAlgorithmChanged(MarkovAlgorithm)));
+    connect(ui->markov_program_editor, SIGNAL(redoAvailable(bool)), this,
             SIGNAL(redoAvailable(bool)));
-    connect(ui->plainTextEdit, SIGNAL(undoAvailable(bool)), this,
+    connect(ui->markov_program_editor, SIGNAL(undoAvailable(bool)), this,
             SIGNAL(undoAvailable(bool)));
-    connect(ui->plainTextEdit, SIGNAL(copyAvailable(bool)), this,
+    connect(ui->markov_program_editor, SIGNAL(copyAvailable(bool)), this,
             SIGNAL(copyAvailable(bool)));
 
-    connect(ui->plainTextEdit, SIGNAL(breakPointAdded(int)), this,
+    connect(ui->markov_program_editor, SIGNAL(breakPointAdded(int)), this,
             SIGNAL(breakPointAdded(int)));
-    connect(ui->plainTextEdit, SIGNAL(breakPointRemoved(int)), this,
+    connect(ui->markov_program_editor, SIGNAL(breakPointRemoved(int)), this,
             SIGNAL(breakPointRemoved(int)));
 
-    connect(ui->plainTextEdit, SIGNAL(lineFocusWithError(int, CompilerError)),
-            ui->widget, SLOT(lineWithErrorFocus(int, CompilerError)));
-    connect(ui->plainTextEdit, SIGNAL(lineFocusWithoutError(int)), ui->widget,
-            SLOT(lineWithoutErrorFocus(int)));
+    connect(ui->markov_program_editor,
+            SIGNAL(lineFocusWithError(int, CompilerError)), ui->widget,
+            SLOT(lineWithErrorFocus(int, CompilerError)));
+    connect(ui->markov_program_editor, SIGNAL(lineFocusWithoutError(int)),
+            ui->widget, SLOT(lineWithoutErrorFocus(int)));
 }
 
 EditorWindowWidget::~EditorWindowWidget() { delete ui; }
 
+void EditorWindowWidget::newInputAlphabet(QString new_alphabet) {
+    ui->markov_program_editor->newInputAlphabet(new_alphabet);
+}
+
+void EditorWindowWidget::newRuntimeAlphabet(QString new_alphabet) {
+    ui->markov_program_editor->newRuntimeAlphabet(new_alphabet);
+}
+
 void EditorWindowWidget::showLineHighlight(int line_number) {
-    ui->plainTextEdit->showLineHighlight(line_number);
+    ui->markov_program_editor->showLineHighlight(line_number);
 }
 
 void EditorWindowWidget::removeLineHighlight() {
-    ui->plainTextEdit->removeLineHighlight();
+    ui->markov_program_editor->removeLineHighlight();
 }
 
 void EditorWindowWidget::newSourceCode(QString new_source) {
-    ui->plainTextEdit->newSourceCode(new_source);
+    ui->markov_program_editor->newSourceCode(new_source);
 }
 
-void EditorWindowWidget::undo() { ui->plainTextEdit->undo(); }
+void EditorWindowWidget::undo() { ui->markov_program_editor->undo(); }
 
-void EditorWindowWidget::redo() { ui->plainTextEdit->redo(); }
-void EditorWindowWidget::selectAll() { ui->plainTextEdit->selectAll(); }
+void EditorWindowWidget::redo() { ui->markov_program_editor->redo(); }
+void EditorWindowWidget::selectAll() { ui->markov_program_editor->selectAll(); }
 
-void EditorWindowWidget::copy() { ui->plainTextEdit->copy(); }
-void EditorWindowWidget::paste() { ui->plainTextEdit->paste(); }
+void EditorWindowWidget::copy() { ui->markov_program_editor->copy(); }
+void EditorWindowWidget::paste() { ui->markov_program_editor->paste(); }
 
-void EditorWindowWidget::cut() { ui->plainTextEdit->cut(); }
+void EditorWindowWidget::cut() { ui->markov_program_editor->cut(); }
 void EditorWindowWidget::deleteSelection() {
-    ui->plainTextEdit->deleteSelection();
+    ui->markov_program_editor->deleteSelection();
 }
 void EditorWindowWidget::setDefaultSourceCode(QString source_code) {
-    ui->plainTextEdit->newSourceCode(source_code, false);
+    ui->markov_program_editor->newSourceCode(source_code, false);
 }

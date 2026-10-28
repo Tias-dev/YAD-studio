@@ -1,9 +1,11 @@
 #include "AlphabetWidget.h"
 
+#include <qlogging.h>
 #include <qtextedit.h>
 
 AlphabetWidget::AlphabetWidget(QWidget* parent) {
     connect(this, &QLineEdit::textChanged, this, [this]() {
+        qDebug() << "Text changed to: " << this->text() << '\n';
         QString new_text = this->text();
         if (new_text == alphabet_) {
             return;

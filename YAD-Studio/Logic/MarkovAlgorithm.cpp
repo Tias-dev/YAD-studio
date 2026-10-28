@@ -1,9 +1,17 @@
 #include "MarkovAlgorithm.h"
 
 MarkovAlgorithm::MarkovAlgorithm(MarkovAlphabet alphabet,
-                                 QVector<MarkovRule> rules,
+                                 std::vector<MarkovRule> rules,
                                  MarkovAlphabet input_alphabet)
     : _alphabet(alphabet), _rules(rules), _input_alphabet(input_alphabet) {}
+
+void MarkovAlgorithm::setAlphabet(const MarkovAlphabet& new_alphabet) {
+    _alphabet = new_alphabet;
+}
+
+void MarkovAlgorithm::setInputAlphabet(const MarkovAlphabet& new_alphabet) {
+    _input_alphabet = new_alphabet;
+}
 
 bool MarkovAlgorithm::RuleFitResult::isValid() const {
     return start_index >= 0 && length >= 0;
@@ -55,4 +63,4 @@ const MarkovAlphabet& MarkovAlgorithm::getInputAlphabet() const {
 }
 const MarkovAlphabet& MarkovAlgorithm::getAlphabet() const { return _alphabet; }
 
-QVector<MarkovRule> MarkovAlgorithm::getRules() const { return _rules; }
+std::vector<MarkovRule> MarkovAlgorithm::getRules() const { return _rules; }

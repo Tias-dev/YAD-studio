@@ -6,6 +6,7 @@
 
 #include "Logic/CompilerError.h"
 #include "Logic/MarkovAlgorithm.h"
+#include "MarkovAlphabet.h"
 
 class LineNumberArea;
 
@@ -20,19 +21,19 @@ class MarkovEditorWidget : public QPlainTextEdit {
     int lineNumberAreaWidth();
     void breakPointPress(QMouseEvent* event);
 
-   public slots:
-    // /**
-    //  * @brief when any changes where done with runtime alphabet
-    //  * @param new_alphabet
-    //  */
-    // void newRuntimeAlphabet(QString new_alphabet);
-    //
-    // /**
-    //  * @brief when any changes where done with input alphabet
-    //  * @param new_alphabet
-    //  */
-    // void newInputAlphabet(QString new_alphabet);
+    /**
+     * @brief when any changes where done with runtime alphabet
+     * @param new_alphabet
+     */
+    void newRuntimeAlphabet(QString new_alphabet);
 
+    /**
+     * @brief when any changes where done with input alphabet
+     * @param new_alphabet
+     */
+    void newInputAlphabet(QString new_alphabet);
+
+   public slots:
     /**
      * @brief when source code from file is loaded this slot will be called.
      * Source code should be put to QTextEditor.
@@ -103,11 +104,16 @@ class MarkovEditorWidget : public QPlainTextEdit {
     /**
      * @brief list of errors which are in source code
      */
-    QVector<CompilerError> _errors;
+    std::vector<CompilerError> _errors;
     /**
      * @brief last successfully parsed algorithm
      */
     MarkovAlgorithm _algorithm;
+
+    /**
+     * @brief last changed alphabets
+     */
+    MarkovAlphabet _runtime_alphabet, _input_alphabet;
 
     /**
      * @brief list of active break points

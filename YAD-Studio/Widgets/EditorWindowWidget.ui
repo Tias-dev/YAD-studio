@@ -30,7 +30,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="MarkovEditorWidget" name="plainTextEdit">
+    <widget class="MarkovEditorWidget" name="markov_program_editor">
      <property name="font">
       <font>
        <family>Courier</family>

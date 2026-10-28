@@ -11,10 +11,13 @@
 #include <QUrl>
 
 #include "AboutWindow.h"
+#include "AlphabetsDisplayWidget.h"
+#include "EditorWindowWidget.h"
 #include "Managers/FileManager.h"
 #include "Managers/HistoryManager.h"
 #include "Managers/MarkovRunManager.h"
 #include "Managers/SourceCodeManager.h"
+#include "MarkovEditorWidget.h"
 #include "Widgets/DebugRunWidget.h"
 #include "Widgets/RunWidget.h"
 #include "ui_MainWindow.h"
@@ -252,6 +255,12 @@ MainWindow::MainWindow(QWidget* parent)
             SLOT(debugStop()));
     connect(ui->actionDebug_Step_By_Step, SIGNAL(triggered()), ui->input,
             SLOT(runWithDebugStepByStepClicked()));
+
+    // Connect runtime/input alphabets changes to markov editor view
+    connect(ui->alphabets, &AlphabetsDisplayWidget::onRuntimeAlphabetChanged,
+            ui->editorWindow, &EditorWindowWidget::newRuntimeAlphabet);
+    connect(ui->alphabets, &AlphabetsDisplayWidget::onInputAlphabetChanged,
+            ui->editorWindow, &EditorWindowWidget::newInputAlphabet);
 
     // Read file to open from command line
     QStringList arguments = QCoreApplication::arguments();

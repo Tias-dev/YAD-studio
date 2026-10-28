@@ -10,7 +10,10 @@
 #include <QRegularExpression>
 #include <QTextBlock>
 
+#include "CompilerError.h"
 #include "Logic/MarkovParser.h"
+#include "MarkovAlgorithm.h"
+#include "MarkovAlphabet.h"
 
 static int break_point_width = 10;
 static int break_point_padding = 3;
@@ -59,6 +62,30 @@ MarkovEditorWidget::MarkovEditorWidget(QWidget* parent)
 
     updateLineNumberAreaWidth();
     highlightCurrentLine();
+}
+
+void MarkovEditorWidget::newRuntimeAlphabet(QString new_alphabet) {
+    QSet<QChar> letters;
+    for (const QChar c : new_alphabet) {
+        if (letters.contains(c)) {
+            _errors.push_back(errors::CharAlreadyInAlphabet(-1, c));
+        }
+        letters.insert(c);
+    }
+    _runtime_alphabet = MarkovAlphabet{letters};
+    _algorithm.setAlphabet(_runtime_alphabet);
+}
+
+void MarkovEditorWidget::newInputAlphabet(QString new_alphabet) {
+    QSet<QChar> letters;
+    for (const QChar c : new_alphabet) {
+        if (letters.contains(c)) {
+            _errors.push_back(errors::CharAlreadyInAlphabet(-1, c));
+        }
+        letters.insert(c);
+    }
+    _input_alphabet = MarkovAlphabet{letters};
+    _algorithm.setInputAlphabet(_input_alphabet);
 }
 
 MarkovEditorWidget::MarkovHighliter::MarkovHighliter(MarkovEditorWidget* editor)
@@ -439,7 +466,9 @@ void MarkovEditorWidget::userChangedSourceCode() {
     _last_source_code = source_code;
 
     MarkovAlgorithm alg;
-    bool res = MarkovParser::parseSourceCode(source_code, alg, _errors);
+    std::vector<MarkovRule> rules =
+        MarkovParser::parseSourceCode(source_code, _runtime_alphabet, _errors);
+    alg = MarkovAlgorithm{_runtime_alphabet, rules, _input_alphabet};
 
     bool rehighlight_needed = false;
     if (alg.getAlphabet().getAllChars() !=
@@ -448,17 +477,12 @@ void MarkovEditorWidget::userChangedSourceCode() {
 
     _algorithm = alg;
 
-    if (res) {
+    if (_errors.empty()) {
         emit markovAlgorithmChanged(_algorithm);
         setCanRun(true);
         updateErrors();
 
     } else {
-        bool rehighlight_needed = false;
-        if (alg.getAlphabet().getAllChars() !=
-            _algorithm.getAlphabet().getAllChars())
-            rehighlight_needed = true;
-
         setCanRun(false);
         updateErrors();
     }
@@ -476,10 +500,6 @@ void MarkovEditorWidget::updateErrors() {
         if (_errors_map.find(err.getLineNumber()) == _errors_map.end()) {
             _errors_map.insert(err.getLineNumber(), err);
         }
-        //        qDebug() << "Error: " << err.getErrorNumber() << " line: " <<
-        //        err.getLineNumber() <<
-        //                    "Title: " << err.getErrorTitle() <<
-        //                    err.getErrorDescription();
     }
     update();
     notifyAboutCurrentLineErrors();
