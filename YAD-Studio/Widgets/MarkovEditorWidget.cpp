@@ -331,7 +331,6 @@ void MarkovEditorWidget::lineNumberAreaPaintEvent(QPaintEvent* event) {
                              _lines_with_errors.end());
 
             if (is_error) {
-                // painter.setBrush(QColor(255, 216, 216));
                 QRect err(0, top, lineNumberArea->width(), bottom - top);
                 painter.fillRect(err, QColor(255, 216, 216));
             }
