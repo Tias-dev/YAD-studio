@@ -9,7 +9,7 @@
  * @brief Contains comment with position
  */
 struct Comment {
-    size_t line, offset;
+    size_t line;
     QString content;
 };
 

@@ -1,6 +1,5 @@
 #ifndef MARKOVALGORITHM_H
 #define MARKOVALGORITHM_H
-#include <QVector>
 
 #include "MarkovAlphabet.h"
 #include "MarkovRule.h"

@@ -73,8 +73,8 @@ MainWindow::MainWindow(QWidget* parent)
             SIGNAL(wordSelected(QString)));
     connect(ui->history, SIGNAL(removeFromHistory(QString)), history_manager,
             SLOT(removeFromHistory(QString)));
-    connect(history_manager, SIGNAL(historyChanged(QVector<QString>)),
-            ui->history, SLOT(historyChanged(QVector<QString>)));
+    connect(history_manager, SIGNAL(historyChanged(std::vector<QString>)),
+            ui->history, SLOT(historyChanged(std::vector<QString>)));
 
     // Connect MainWindows and FileManager
     FileManager* file_manager = FileManager::getInstance();
@@ -153,9 +153,9 @@ MainWindow::MainWindow(QWidget* parent)
             SLOT(sourceCodeChanged()));
 
     // Connect FileManager and HistoryManager
-    connect(file_manager, SIGNAL(newHistoryLoaded(QVector<QString>)), this,
-            SLOT(newHistoryLoaded(QVector<QString>)));
-    connect(history_manager, SIGNAL(historyChanged(QVector<QString>)),
+    connect(file_manager, SIGNAL(newHistoryLoaded(std::vector<QString>)), this,
+            SLOT(newHistoryLoaded(std::vector<QString>)));
+    connect(history_manager, SIGNAL(historyChanged(std::vector<QString>)),
             file_manager, SLOT(historyChanged()));
 
     // Connect RunWidget and MarkovRunManager
@@ -342,7 +342,7 @@ void MainWindow::updateDebugMenu() {
     }
 }
 
-void MainWindow::newHistoryLoaded(QVector<QString> history) {
+void MainWindow::newHistoryLoaded(std::vector<QString> history) {
     HistoryManager::getInstance()->clearHistory();
     HistoryManager::getInstance()->addToHistory(history);
 }

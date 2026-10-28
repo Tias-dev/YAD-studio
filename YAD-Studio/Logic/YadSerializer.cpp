@@ -1,18 +1,13 @@
 #include "YadSerializer.h"
 
-#include <qjsonarray.h>
-#include <qjsondocument.h>
-#include <qjsonobject.h>
-#include <qjsonvalue.h>
-#include <qobject.h>
-#include <qset.h>
-
 #include <QByteArray>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QSet>
+#include <QtLogging>
 #include <format>
 #include <stdexcept>
 
@@ -44,6 +39,7 @@ void YadSerializer::Serialize(const YadFile& yad_file) const {
         throw std::runtime_error("Program is invalid! Errors\n" +
                                  errorData.toStdString());
     }
+    qDebug() << "Found " << comments.size() << " comments";
     NAMClosure closure;
     closure.comments = comments;
 
@@ -72,7 +68,7 @@ QString RestoreSourceCode(const MarkovAlphabet& runtime_alphabet,
     std::vector<QString> lines;
     for (const MarkovRule& rule : rules) {
         size_t line_number = line_number_offset + rule.getLineNumber();
-        while (lines.size() < line_number) {
+        while (lines.size() <= line_number) {
             lines.push_back(QString{});
         }
         QString rule_string = rule.getLeftPart() + " ";
@@ -83,6 +79,9 @@ QString RestoreSourceCode(const MarkovAlphabet& runtime_alphabet,
 
     auto join_by = [](auto iterable, QString sep = ", ") {
         auto it = std::begin(iterable), end = std::end(iterable);
+        if (it == end) {
+            return QString{};
+        }
         QString result = *it;
         ++it;
         while (it != end) {
@@ -96,23 +95,41 @@ QString RestoreSourceCode(const MarkovAlphabet& runtime_alphabet,
     lines[1] = "I = { " + join_by(input_alphabet.getAlphabet(), ", ") + " }";
 
     for (const Comment& comment : comments) {
-        while (lines.size() < comment.line) {
+        while (lines.size() <= comment.line + line_number_offset) {
             lines.push_back(QString{});
         }
-        if (!lines[comment.line].isEmpty()) {
-            // TODO: Add comment setting and offset recalculating
-        }
+        lines[comment.line + line_number_offset] += " //" + comment.content;
     }
+
+    if (!lines.empty()) {
+        lines = [&lines]() {
+            std::vector<QString> new_lines{lines[0]};
+            for (size_t i = 1, j = 0; i < lines.size(); ++i) {
+                if (new_lines[j].isEmpty() && lines[i].isEmpty()) {
+                    continue;
+                }
+                new_lines.push_back(lines[i]);
+                ++j;
+            }
+            return new_lines;
+        }();
+    }
+
+    QString result = "";
+    for (const QString& line : lines) {
+        result += line + "\n";
+    }
+
+    return result;
 }
 }  // namespace
 YadFile YadSerializer::Deserialize() const {
     NAMClosure closure = Deserialize_();
+    QString source_code =
+        RestoreSourceCode(closure.runtime_alphabet, closure.input_alphabet,
+                          closure.rules, closure.comments);
 
-    return DeserializeResult{
-        .program = MarkovAlgorithm{closure.runtime_alphabet, closure.rules,
-                                   closure.input_alphabet},
-        .comments = closure.comments,
-        .history = closure.history};
+    return YadFile{source_code, closure.history};
 }
 
 void YadSerializer::Serialize_(const NAMClosure& closure) const {
@@ -131,8 +148,8 @@ void YadSerializer::Serialize_(const NAMClosure& closure) const {
         QJsonObject comment_object;
         comment_object.insert("n_line",
                               QJsonValue{static_cast<qint64>(comment.line)});
-        comment_object.insert("offset", static_cast<qint64>(comment.offset));
         comment_object.insert("value", comment.content);
+        comments.push_back(comment_object);
     }
 
     QJsonArray history;
@@ -197,7 +214,7 @@ QString GetValueFromRef<QString>(const QJsonValueConstRef& ref) {
 
 template <>
 bool GetValueFromRef<bool>(const QJsonValueConstRef& ref) {
-    if (!ref.isString()) {
+    if (!ref.isBool()) {
         throw std::runtime_error("Expected value to be boolean but it is not!");
     }
     return ref.toBool();
@@ -275,7 +292,6 @@ YadSerializer::NAMClosure YadSerializer::Deserialize_() const {
         QJsonObject comment = comment_raw.toObject();
         closure.comments.push_back(Comment{
             .line = size_t(GetKey<double>(comment, "comment", "n_line")),
-            .offset = size_t(GetKey<double>(comment, "comment", "offset")),
             .content = GetKey<QString>(comment, "comment", "value"),
         });
     }

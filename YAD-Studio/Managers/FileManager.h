@@ -2,7 +2,6 @@
 #define FILEMANAGER_H
 #include <QObject>
 #include <QString>
-#include <QVector>
 /**
  * @brief The class is responsible for saving files, listening for changes.
  */
@@ -78,7 +77,7 @@ class FileManager : public QObject {
      * @brief emitted when the history is loaded from file
      * @param history
      */
-    void newHistoryLoaded(QVector<QString> history);
+    void newHistoryLoaded(std::vector<QString> history);
 
    private:
     FileManager();

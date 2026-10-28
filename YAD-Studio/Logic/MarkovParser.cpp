@@ -217,6 +217,7 @@ bool MarkovParser::parseSourceCode(QString source_code,
     QStringList lines = source_code.split(QRegularExpression("(\\r\\n|\\n)"));
 
     errors.clear();
+    comments.clear();
 
     MarkovAlphabet alphabet(true);
     MarkovAlphabet input_alphabet(true);
@@ -226,9 +227,8 @@ bool MarkovParser::parseSourceCode(QString source_code,
         int line_number = i + 1;
         auto [line, comment] = splitByComment(lines[i]);
         if (!comment.isEmpty()) {
-            comments.push_back({.line = static_cast<size_t>(line_number),
-                                .offset = static_cast<size_t>(line.size() + 2),
-                                .content = comment});
+            comments.push_back(
+                {.line = static_cast<size_t>(line_number), .content = comment});
         }
         line = trim(line);
 

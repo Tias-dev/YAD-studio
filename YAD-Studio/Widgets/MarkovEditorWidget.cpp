@@ -440,7 +440,8 @@ void MarkovEditorWidget::userChangedSourceCode() {
     _last_source_code = source_code;
 
     MarkovAlgorithm alg;
-    bool res = MarkovParser::parseSourceCode(source_code, alg, _errors);
+    bool res =
+        MarkovParser::parseSourceCode(source_code, alg, _errors, _comments);
 
     bool rehighlight_needed = false;
     if (alg.getAlphabet().getAllChars() !=

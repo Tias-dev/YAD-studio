@@ -4,6 +4,7 @@
 #include <QPlainTextEdit>
 #include <QSyntaxHighlighter>
 
+#include "Comment.h"
 #include "Logic/CompilerError.h"
 #include "Logic/MarkovAlgorithm.h"
 
@@ -92,7 +93,11 @@ class MarkovEditorWidget : public QPlainTextEdit {
     /**
      * @brief list of errors which are in source code
      */
-    QVector<CompilerError> _errors;
+    std::vector<CompilerError> _errors;
+    /**
+     * @brief list of comments which are in source code
+     */
+    std::vector<Comment> _comments;
     /**
      * @brief last successfully parsed algorithm
      */

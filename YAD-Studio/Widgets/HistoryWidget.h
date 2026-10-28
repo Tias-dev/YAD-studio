@@ -20,13 +20,13 @@ class HistoryWidget : public QWidget {
 
    private:
     Ui::HistoryWidget* ui;
-    QVector<QString> _history;
+    std::vector<QString> _history;
 
     QStringList getSelectedItems();
    public slots:
     // the list in widget must be updated
-    //(delete all previous history and write new QVector)
-    void historyChanged(QVector<QString> list);
+    //(delete all previous history and write new std::vector)
+    void historyChanged(std::vector<QString> list);
 
     void showContextMenu(const QPoint& pos);
     void doubleClick(QModelIndex index);
