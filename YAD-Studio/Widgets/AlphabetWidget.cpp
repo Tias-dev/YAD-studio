@@ -15,13 +15,15 @@
 AlphabetWidget::AlphabetWidget(QWidget* parent)
     : QWidget(parent), ui(new Ui::AlphabetWidget) {
     ui->setupUi(this);
+    ui->error->setText("");
+    ui->error->setStyleSheet("QLabel { color: red;  }");
     connect(ui->letters, &QLineEdit::textChanged, this, [this]() {
+        if (ui->letters->text() == alphabet_.getAllChars()) {
+            return;
+        }
         QSet<QChar> letters;
         for (const QChar c : this->ui->letters->text()) {
             letters.insert(c);
-        }
-        if (letters == alphabet_.getAlphabet()) {
-            return;
         }
         alphabet_ = MarkovAlphabet{letters};
         if (type_ == AlphabetType::kRuntime) {
@@ -67,9 +69,6 @@ void AlphabetWidget::ClearError() {
 }
 
 void AlphabetWidget::SetAlphabet(MarkovAlphabet new_alphabet) {
-    if (new_alphabet.getAlphabet() == alphabet_.getAlphabet()) {
-        return;
-    }
     alphabet_ = new_alphabet;
     ui->letters->setText(alphabet_.getAllChars());
 }
