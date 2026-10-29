@@ -1,11 +1,12 @@
 #include "MarkovParser.h"
 
+#include <qcontainerfwd.h>
 #include <qregularexpression.h>
 #include <qstringview.h>
 
 #include <QDebug>
 #include <QRegularExpression>
-#include <QStringList>
+#include <utility>
 
 #include "CompilerError.h"
 #include "MarkovAlphabet.h"
@@ -14,6 +15,16 @@ namespace Parser {
 static QString forbidden_symbols(">-. TI={}");
 }
 using namespace Parser;
+
+std::pair<QString, QString> splitByComment(QString line) {
+    QString command = line, comment;
+    int comments_index = line.indexOf("//");
+    if (comments_index >= 0) {
+        command = line.sliced(0, comments_index);
+        comment = line.sliced(comments_index + 2);
+    }
+    return {command, comment};
+}
 
 QString removeComments(QString line) {
     int comments_index = line.indexOf("//");
@@ -73,17 +84,25 @@ void parseRule(int line_number, QString line,
 
 std::vector<MarkovRule> MarkovParser::parseSourceCode(
     QString source_code, const MarkovAlphabet& runtime_alphabet,
-    std::vector<CompilerError>& errors) {
+    std::vector<CompilerError>& errors, std::vector<Comment>& comments) {
     bool first_rule_is_readed = false;
     QStringList lines = source_code.split(QRegularExpression("[\r\n]"));
 
     errors.clear();
+    comments.clear();
 
+    MarkovAlphabet alphabet(true);
+    MarkovAlphabet input_alphabet(true);
     std::vector<MarkovRule> rules;
 
     for (int i = 0; i < lines.size(); ++i) {
         int line_number = i + 1;
-        QString line = trim(removeComments(lines[i]));
+        auto [line, comment] = splitByComment(lines[i]);
+        if (!comment.isEmpty()) {
+            comments.push_back(
+                {.line = static_cast<size_t>(line_number), .content = comment});
+        }
+        line = trim(line);
 
         if (line.size() > 0) {
             bool readed = false;

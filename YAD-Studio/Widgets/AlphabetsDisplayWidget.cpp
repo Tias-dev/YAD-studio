@@ -1,5 +1,6 @@
 #include "AlphabetsDisplayWidget.h"
 
+#include "AlphabetsManager.h"
 #include "ui_AlphabetsDisplayWidget.h"
 
 AlphabetsDisplayWidget::AlphabetsDisplayWidget(QWidget* parent)
@@ -9,6 +10,13 @@ AlphabetsDisplayWidget::AlphabetsDisplayWidget(QWidget* parent)
     ui->input_alphabet->SetAlphabetType(AlphabetWidget::AlphabetType::kInput);
     ui->runtime_alphabet->SetAlphabetType(
         AlphabetWidget::AlphabetType::kRuntime);
+
+    connect(&AlphabetsManager::Instance(),
+            &AlphabetsManager::OnNewRuntimeAlphabet, ui->runtime_alphabet,
+            &AlphabetWidget::SetAlphabet);
+    connect(&AlphabetsManager::Instance(),
+            &AlphabetsManager::OnNewInputAlphabet, ui->input_alphabet,
+            &AlphabetWidget::SetAlphabet);
 
     connect(&AlphabetsManager::Instance(),
             &AlphabetsManager::OnNewAlphabetError, this,

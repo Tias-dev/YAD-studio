@@ -22,6 +22,9 @@ class AlphabetsManager : public QObject {
 
     enum class AlphabetType { kRuntime, kInput };
 
+    MarkovAlphabet GetRuntimeAlphabet() const;
+    MarkovAlphabet GetInputAlphabet() const;
+
    public slots:
     void SetRuntimeAlphabet(MarkovAlphabet new_alphabet);
     void SetInputAlphabet(MarkovAlphabet new_alphabet);

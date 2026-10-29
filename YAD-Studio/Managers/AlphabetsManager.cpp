@@ -46,6 +46,14 @@ void AlphabetsManager::SetRuntimeAlphabet(MarkovAlphabet new_alphabet) {
     UpdateInputErrors();
 }
 
+MarkovAlphabet AlphabetsManager::GetRuntimeAlphabet() const {
+    return runtime_alphabet_;
+}
+
+MarkovAlphabet AlphabetsManager::GetInputAlphabet() const {
+    return input_alphabet_;
+}
+
 void AlphabetsManager::UpdateInputErrors() {
     QSet<QChar> invalid_letters;
     for (QChar c : input_alphabet_.getAllChars()) {

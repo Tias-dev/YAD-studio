@@ -78,7 +78,7 @@ class MainWindow : public QMainWindow {
     void updateDebugMenu();
     void initStyles();
    private slots:
-    void newHistoryLoaded(QVector<QString>);
+    void newHistoryLoaded(std::vector<QString>);
 };
 
 #endif  // MAINWINDOW_H

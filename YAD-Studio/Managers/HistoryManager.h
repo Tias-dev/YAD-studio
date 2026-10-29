@@ -1,9 +1,8 @@
 #ifndef HISTORYMANAGER_H
 #define HISTORYMANAGER_H
 #include <QObject>
-
-#include "QString"
-#include "QVector"
+#include <QString>
+#include <vector>
 
 class HistoryManager : public QObject {
     Q_OBJECT
@@ -11,7 +10,7 @@ class HistoryManager : public QObject {
     static HistoryManager* getInstance();
 
     // returns the latest history
-    QVector<QString> getHistory();
+    std::vector<QString> getHistory();
 
    public slots:
     // should be added to history if it is not yet in history
@@ -21,11 +20,11 @@ class HistoryManager : public QObject {
     // all history should be erased
     void clearHistory();
     // same as first slot but with multiple words
-    void addToHistory(QVector<QString> words);
+    void addToHistory(std::vector<QString> words);
 
    signals:
     // emitted when the history was changed.
-    void historyChanged(QVector<QString> new_words);
+    void historyChanged(std::vector<QString> new_words);
 
     // When word was selected
     void wordSelected(QString input_word);
@@ -38,7 +37,7 @@ class HistoryManager : public QObject {
     void operator=(HistoryManager const&);  // don't implement
 
     static HistoryManager* _instance;
-    QVector<QString> _history;
+    std::vector<QString> _history;
 };
 
 #endif  // HISTORYMANAGER_H

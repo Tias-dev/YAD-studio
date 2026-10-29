@@ -456,8 +456,8 @@ void MarkovEditorWidget::userChangedSourceCode() {
     _last_source_code = source_code;
 
     MarkovAlgorithm alg;
-    std::vector<MarkovRule> rules =
-        MarkovParser::parseSourceCode(source_code, _runtime_alphabet, _errors);
+    std::vector<MarkovRule> rules = MarkovParser::parseSourceCode(
+        source_code, _runtime_alphabet, _errors, _comments);
     alg = MarkovAlgorithm{_runtime_alphabet, rules, _input_alphabet};
 
     bool rehighlight_needed = false;

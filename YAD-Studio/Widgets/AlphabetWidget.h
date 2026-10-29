@@ -16,11 +16,12 @@ class AlphabetWidget : public QWidget {
 
     enum class AlphabetType { kNone, kRuntime, kInput };
 
-    void SetAlphabetType(AlphabetType new_alphabet_type);
-    void SetAlphabet(MarkovAlphabet new_alphabet);
-
     void SetError(QString message);
     void ClearError();
+
+   public slots:
+    void SetAlphabetType(AlphabetType new_alphabet_type);
+    void SetAlphabet(MarkovAlphabet new_alphabet);
 
    private:
     AlphabetType type_ = AlphabetType::kNone;

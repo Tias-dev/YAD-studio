@@ -63,9 +63,7 @@ HistoryWidget::HistoryWidget(QWidget* parent)
     : QWidget(parent), ui(new Ui::HistoryWidget) {
     ui->setupUi(this);
 
-    QVector<QString> vec;
-    // vec.push_back("test1");
-    // vec.push_back("test2");
+    std::vector<QString> vec;
     historyChanged(vec);
 
     // make do not editable listView
@@ -134,7 +132,7 @@ void HistoryWidget::deleteHistoryItem() {
 }
 
 HistoryWidget::~HistoryWidget() { delete ui; }
-void HistoryWidget::historyChanged(QVector<QString> list) {
+void HistoryWidget::historyChanged(std::vector<QString> list) {
     QStringList* stringList = new QStringList();
     _history = list;
     for (int i = 0; i < list.size(); ++i) {

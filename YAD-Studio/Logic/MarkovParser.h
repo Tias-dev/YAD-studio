@@ -1,9 +1,11 @@
 #ifndef MARKOVPARSER_H
 #define MARKOVPARSER_H
 #include <QString>
-#include <QVector>
+#include <vector>
 
+#include "Comment.h"
 #include "CompilerError.h"
+#include "MarkovAlgorithm.h"
 #include "MarkovAlphabet.h"
 #include "MarkovRule.h"
 
@@ -18,8 +20,8 @@ class MarkovParser {
      * @return parsed markov rules
      */
     static std::vector<MarkovRule> parseSourceCode(
-        QString source_code, const MarkovAlphabet& runtime_alphabet,
-        std::vector<CompilerError>& errors);
+        QString source_code, const MarkovAlphabet& algorithm,
+        std::vector<CompilerError>& errors, std::vector<Comment>& comments);
 
    private:
     MarkovParser();

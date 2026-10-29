@@ -7,15 +7,15 @@ class CompilerError {
     CompilerError(const QString& title = "", const QString& description = "",
                   int error_number = -1, int line_numer = -1);
 
-    int getErrorNumber();
-    int getLineNumber();
-    const QString& getErrorTitle();
-    const QString& getErrorDescription();
+    int getErrorNumber() const;
+    int getLineNumber() const;
+    const QString& getErrorTitle() const;
+    const QString& getErrorDescription() const;
     /**
      * @brief getFullErrorInfo
      * @return ErrorTitle + ErrorDescription
      */
-    const QString getFullErrorInfo();
+    const QString getFullErrorInfo() const;
 
     void setErrorNumber(int number);
     void setLineNumber(int line);
