@@ -88,27 +88,28 @@ void MarkovEditorWidget::MarkovHighliter::highlightBlock(const QString& text) {
     QColor normal_rule(224, 116, 1);
     QColor final_rule(222, 31, 0);
 
-    // Alphabet
-    {
-        QTextCharFormat symbols;
-        symbols.setForeground(alphabet_color);
-        symbols.setFontWeight(QFont::Bold);
-        QString pattern = "[" +
-                          QRegularExpression::escape(
-                              _editor->_algorithm.getAlphabet().getAllChars()) +
-                          "]+";
-
-        if (_editor->_algorithm.getAlphabet().isAuto()) pattern = ".+";
-
-        QRegularExpression expression(pattern);
-        QRegularExpressionMatch match = expression.match(text);
-        int index = match.lastCapturedIndex();
-        while (index >= 0) {
-            int length = match.capturedLength();
-            setFormat(index, length, symbols);
-            index = text.indexOf(expression, index + length);
-        }
-    }
+    // // Alphabet
+    // {
+    //     QTextCharFormat symbols;
+    //     symbols.setForeground(alphabet_color);
+    //     symbols.setFontWeight(QFont::Bold);
+    //     QString pattern = "[" +
+    //                       QRegularExpression::escape(
+    //                           _editor->_algorithm.getAlphabet().getAllChars())
+    //                           +
+    //                       "]+";
+    //
+    //     if (_editor->_algorithm.getAlphabet().isAuto()) pattern = ".+";
+    //
+    //     QRegularExpression expression(pattern);
+    //     QRegularExpressionMatch match = expression.match(text);
+    //     int index = match.lastCapturedIndex();
+    //     while (index >= 0) {
+    //         int length = match.capturedLength();
+    //         setFormat(index, length, symbols);
+    //         index = text.indexOf(expression, index + length);
+    //     }
+    // }
 
     // System symbols
     {

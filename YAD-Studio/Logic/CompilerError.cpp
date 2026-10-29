@@ -34,15 +34,6 @@ void CompilerError::setErrorDescription(const QString& description) {
 
 namespace errors {
 
-CompilerError ForbiddenRuleError(int line, QString letter) {
-    QString title =
-        QObject::tr("Symbol '%1' can't be used in rule").arg(letter);
-    QString description =
-        QObject::tr("You can use any other symbol which are in alphabet.");
-
-    return CompilerError(title, description, 200, line);
-}
-
 CompilerError WrongRuleDefenition(int line, QString text) {
     QString title = QObject::tr("Wrong rule definition");
     QString description = QObject::tr(
@@ -53,22 +44,6 @@ CompilerError WrongRuleDefenition(int line, QString text) {
     return CompilerError(title, description, 203, line);
 }
 
-CompilerError CharAlreadyInAlphabet(int line, QString letter) {
-    QString title =
-        QObject::tr("Symbol '%1' added to alphabet more than once").arg(letter);
-    QString description = QObject::tr(
-        "Each symbol can be added to alphabet only once. Examples: 'T = {a, b, "
-        "c, d}'.");
-
-    return CompilerError(title, description, 204, line);
-}
-CompilerError EmptySymbolInAlphabet(int line) {
-    QString title = QObject::tr("Symbol '$' can't be added to alphabet");
-    QString description = QObject::tr(
-        "'$' means an empty symbol and is already a part of alphabet.");
-
-    return CompilerError(title, description, 201, line);
-}
 CompilerError NotInAlphabetError(int line, QString letter) {
     QString title = QObject::tr("Symbol '%1' is not in alphabet").arg(letter);
     QString description =

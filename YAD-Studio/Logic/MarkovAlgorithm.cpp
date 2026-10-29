@@ -23,14 +23,13 @@ MarkovAlgorithm::RuleFitResult::RuleFitResult(int start_index_, int length_)
 MarkovAlgorithm::RuleFitResult MarkovAlgorithm::isRuleFits(
     QString input_word, const MarkovRule& rule) {
     QString pattern = rule.getLeftPart();
-    QString pattern_empty = pattern.replace("$", "");
 
     // Empty string matches the beginning
-    if (pattern_empty.isEmpty()) return RuleFitResult(0, 0);
+    if (pattern.isEmpty()) return RuleFitResult(0, 0);
 
-    int index = input_word.indexOf(pattern_empty);
+    int index = input_word.indexOf(pattern);
     if (index < 0) return RuleFitResult(-1, -1);
-    return RuleFitResult(index, pattern_empty.length());
+    return RuleFitResult(index, pattern.length());
 }
 QString MarkovAlgorithm::useRule(QString input_word, const MarkovRule& rule) {
     QString res = "";
@@ -40,7 +39,6 @@ QString MarkovAlgorithm::useRule(QString input_word, const MarkovRule& rule) {
     res += rule.getRightPart();
     res += input_word.mid(rule_fits.start_index + rule_fits.length,
                           input_word.size());
-    res = res.replace("$", "");
     return res;
 }
 
