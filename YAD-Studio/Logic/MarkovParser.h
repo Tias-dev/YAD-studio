@@ -1,22 +1,27 @@
 #ifndef MARKOVPARSER_H
 #define MARKOVPARSER_H
 #include <QString>
-#include <QVector>
+#include <vector>
 
+#include "Comment.h"
 #include "CompilerError.h"
-#include "Logic/MarkovAlgorithm.h"
+#include "MarkovAlgorithm.h"
+#include "MarkovAlphabet.h"
+#include "MarkovRule.h"
 
 class MarkovParser {
    public:
     /**
      * @brief parses the source code
      * @param source_code code to parse
-     * @param algorithm output algorithm
-     * @param errors output errors
-     * @return returns true if there are no errors and false otherwise.
+     * @param input_alphabet
+     * @param runtime_alphabet
+     * @param errors
+     * @return parsed markov rules
      */
-    static bool parseSourceCode(QString source_code, MarkovAlgorithm& algorithm,
-                                QVector<CompilerError>& errors);
+    static std::vector<MarkovRule> parseSourceCode(
+        QString source_code, const MarkovAlphabet& algorithm,
+        std::vector<CompilerError>& errors, std::vector<Comment>& comments);
 
    private:
     MarkovParser();

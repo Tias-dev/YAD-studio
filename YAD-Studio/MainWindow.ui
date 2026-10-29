@@ -204,10 +204,7 @@ QMainWindow {
      <number>0</number>
     </property>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_3" stretch="2,0,1">
-      <property name="spacing">
-       <number>11</number>
-      </property>
+     <layout class="QGridLayout" name="gridLayout">
       <property name="leftMargin">
        <number>11</number>
       </property>
@@ -217,7 +214,29 @@ QMainWindow {
       <property name="bottomMargin">
        <number>11</number>
       </property>
-      <item>
+      <item row="0" column="0">
+       <widget class="AlphabetsDisplayWidget" name="alphabets" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>520</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
        <widget class="EditorWindowWidget" name="editorWindow" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -239,7 +258,7 @@ QMainWindow {
         </property>
        </widget>
       </item>
-      <item>
+      <item row="2" column="0">
        <widget class="RunWidget" name="runWidget" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -249,7 +268,7 @@ QMainWindow {
         </property>
        </widget>
       </item>
-      <item>
+      <item row="3" column="0">
        <widget class="DebugRunWidget" name="debugRun" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -310,7 +329,7 @@ QMainWindow {
       <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
-         <enum>Qt::Vertical</enum>
+         <enum>Qt::Orientation::Vertical</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -330,7 +349,7 @@ QMainWindow {
      <x>0</x>
      <y>0</y>
      <width>1063</width>
-     <height>26</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -587,6 +606,11 @@ QMainWindow {
    <extends>QWidget</extends>
    <header>HistoryWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AlphabetsDisplayWidget</class>
+   <extends>QWidget</extends>
+   <header>AlphabetsDisplayWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -4,8 +4,10 @@
 #include <QPlainTextEdit>
 #include <QSyntaxHighlighter>
 
+#include "Comment.h"
 #include "Logic/CompilerError.h"
 #include "Logic/MarkovAlgorithm.h"
+#include "MarkovAlphabet.h"
 
 class LineNumberArea;
 
@@ -21,7 +23,6 @@ class MarkovEditorWidget : public QPlainTextEdit {
     void breakPointPress(QMouseEvent* event);
 
    public slots:
-
     /**
      * @brief when source code from file is loaded this slot will be called.
      * Source code should be put to QTextEditor.
@@ -92,11 +93,20 @@ class MarkovEditorWidget : public QPlainTextEdit {
     /**
      * @brief list of errors which are in source code
      */
-    QVector<CompilerError> _errors;
+    std::vector<CompilerError> _errors;
+    /**
+     * @brief list of comments which are in source code
+     */
+    std::vector<Comment> _comments;
     /**
      * @brief last successfully parsed algorithm
      */
     MarkovAlgorithm _algorithm;
+
+    /**
+     * @brief last changed alphabets
+     */
+    MarkovAlphabet _runtime_alphabet, _input_alphabet{true};
 
     /**
      * @brief list of active break points

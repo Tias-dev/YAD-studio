@@ -1,6 +1,7 @@
 #ifndef MARKOVALGORITHM_H
 #define MARKOVALGORITHM_H
-#include <QVector>
+
+#include <vector>
 
 #include "MarkovAlphabet.h"
 #include "MarkovRule.h"
@@ -62,7 +63,7 @@ class MarkovAlgorithm {
      * @param rules list of rules
      */
     MarkovAlgorithm(MarkovAlphabet alphabet = MarkovAlphabet(),
-                    QVector<MarkovRule> rules = QVector<MarkovRule>(),
+                    std::vector<MarkovRule> rules = std::vector<MarkovRule>(),
                     MarkovAlphabet input_alphabet = MarkovAlphabet(true));
 
     /**
@@ -80,12 +81,14 @@ class MarkovAlgorithm {
     const MarkovAlphabet& getAlphabet() const;
 
     const MarkovAlphabet& getInputAlphabet() const;
+    void setAlphabet(const MarkovAlphabet& new_alphabet);
+    void setInputAlphabet(const MarkovAlphabet& new_alphabet);
 
     /**
      * @brief Returns list of rules
      * @return
      */
-    QVector<MarkovRule> getRules() const;
+    std::vector<MarkovRule> getRules() const;
 
    private:
     /**
@@ -97,7 +100,7 @@ class MarkovAlgorithm {
     /**
      * @brief list of rules
      */
-    QVector<MarkovRule> _rules;
+    std::vector<MarkovRule> _rules;
 };
 
 #endif  // MARKOVALGORITHM_H

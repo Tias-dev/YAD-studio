@@ -10,7 +10,11 @@
 #include <QRegularExpression>
 #include <QTextBlock>
 
+#include "AlphabetsManager.h"
+#include "CompilerError.h"
 #include "Logic/MarkovParser.h"
+#include "MarkovAlgorithm.h"
+#include "MarkovAlphabet.h"
 
 static int break_point_width = 10;
 static int break_point_padding = 3;
@@ -57,6 +61,19 @@ MarkovEditorWidget::MarkovEditorWidget(QWidget* parent)
     connect(this, SIGNAL(cursorPositionChanged()), this,
             SLOT(highlightCurrentLine()));
 
+    connect(&AlphabetsManager::Instance(),
+            &AlphabetsManager::OnNewInputAlphabet, this,
+            [this](MarkovAlphabet new_alphabet) {
+                _input_alphabet = new_alphabet;
+                userChangedSourceCode();
+            });
+    connect(&AlphabetsManager::Instance(),
+            &AlphabetsManager::OnNewRuntimeAlphabet, this,
+            [this](MarkovAlphabet new_alphabet) {
+                _runtime_alphabet = new_alphabet;
+                userChangedSourceCode();
+            });
+
     updateLineNumberAreaWidth();
     highlightCurrentLine();
 }
@@ -70,28 +87,6 @@ void MarkovEditorWidget::MarkovHighliter::highlightBlock(const QString& text) {
     QColor system_symbol(0, 128, 0);
     QColor normal_rule(224, 116, 1);
     QColor final_rule(222, 31, 0);
-
-    // Alphabet
-    {
-        QTextCharFormat symbols;
-        symbols.setForeground(alphabet_color);
-        symbols.setFontWeight(QFont::Bold);
-        QString pattern = "[" +
-                          QRegularExpression::escape(
-                              _editor->_algorithm.getAlphabet().getAllChars()) +
-                          "]+";
-
-        if (_editor->_algorithm.getAlphabet().isAuto()) pattern = ".+";
-
-        QRegularExpression expression(pattern);
-        QRegularExpressionMatch match = expression.match(text);
-        int index = match.lastCapturedIndex();
-        while (index >= 0) {
-            int length = match.capturedLength();
-            setFormat(index, length, symbols);
-            index = text.indexOf(expression, index + length);
-        }
-    }
 
     // System symbols
     {
@@ -331,7 +326,6 @@ void MarkovEditorWidget::lineNumberAreaPaintEvent(QPaintEvent* event) {
                              _lines_with_errors.end());
 
             if (is_error) {
-                // painter.setBrush(QColor(255, 216, 216));
                 QRect err(0, top, lineNumberArea->width(), bottom - top);
                 painter.fillRect(err, QColor(255, 216, 216));
             }
@@ -440,7 +434,9 @@ void MarkovEditorWidget::userChangedSourceCode() {
     _last_source_code = source_code;
 
     MarkovAlgorithm alg;
-    bool res = MarkovParser::parseSourceCode(source_code, alg, _errors);
+    std::vector<MarkovRule> rules = MarkovParser::parseSourceCode(
+        source_code, _runtime_alphabet, _errors, _comments);
+    alg = MarkovAlgorithm{_runtime_alphabet, rules, _input_alphabet};
 
     bool rehighlight_needed = false;
     if (alg.getAlphabet().getAllChars() !=
@@ -449,17 +445,12 @@ void MarkovEditorWidget::userChangedSourceCode() {
 
     _algorithm = alg;
 
-    if (res) {
+    if (_errors.empty()) {
         emit markovAlgorithmChanged(_algorithm);
         setCanRun(true);
         updateErrors();
 
     } else {
-        bool rehighlight_needed = false;
-        if (alg.getAlphabet().getAllChars() !=
-            _algorithm.getAlphabet().getAllChars())
-            rehighlight_needed = true;
-
         setCanRun(false);
         updateErrors();
     }
@@ -477,10 +468,6 @@ void MarkovEditorWidget::updateErrors() {
         if (_errors_map.find(err.getLineNumber()) == _errors_map.end()) {
             _errors_map.insert(err.getLineNumber(), err);
         }
-        //        qDebug() << "Error: " << err.getErrorNumber() << " line: " <<
-        //        err.getLineNumber() <<
-        //                    "Title: " << err.getErrorTitle() <<
-        //                    err.getErrorDescription();
     }
     update();
     notifyAboutCurrentLineErrors();

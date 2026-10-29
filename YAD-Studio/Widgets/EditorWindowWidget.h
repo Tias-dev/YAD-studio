@@ -4,6 +4,8 @@
 #include <QWidget>
 
 #include "Logic/MarkovAlgorithm.h"
+#include "MarkovAlphabet.h"
+#include "MarkovEditorWidget.h"
 
 namespace Ui {
 class EditorWindowWidget;

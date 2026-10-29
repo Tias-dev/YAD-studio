@@ -5,13 +5,16 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QProcess>
-#include <QVector>
+#include <QtLogging>
 #include <exception>
+#include <vector>
 
 #include "Logic/YadFile.h"
 #include "MainWindow.h"
 #include "Managers/HistoryManager.h"
 #include "Managers/SourceCodeManager.h"
+#include "YadSerializer.h"
+
 FileManager* FileManager::getInstance() {
     static FileManager* instance = nullptr;
     if (instance == nullptr) instance = new FileManager;
@@ -22,14 +25,16 @@ bool FileManager::hasUnsavedData() { return _has_unsaved_data; }
 
 void FileManager::openFile(QString file_name) {
     try {
-        YadFile file = YadFile::readFromFile(file_name);
+        YadSerializer serializer{file_name};
+        YadFile file = serializer.Deserialize();
 
         setCurrentFilePath(file_name);
         emit newSourceCodeLoaded(file.getSourceCode());
         emit newHistoryLoaded(file.getHistory());
 
         setHasUnsavedData(false);
-    } catch (std::exception e) {
+    } catch (std::exception& e) {
+        qDebug() << "Error while opening file: " << e.what() << '\n';
         QMessageBox msgBox;
         msgBox.setText(tr("<b>Can't open file %1</b>").arg(file_name));
         msgBox.setInformativeText(e.what());
@@ -56,6 +61,7 @@ bool FileManager::save() {
 }
 
 bool FileManager::saveAs() {
+    QFileDialog dlg;
     QString file_name = QFileDialog::getSaveFileName(
         MainWindow::getInstance(), tr("Save As"), "", tr("Yad File (*.yad)"));
 
@@ -73,17 +79,21 @@ void FileManager::newFile() {
 }
 
 bool FileManager::saveToFile(QString file_name) {
+    if (!file_name.endsWith(".yad")) {
+        file_name += ".yad";
+    }
     QString source_code = SourceCodeManager::getInstance()->getSourceCode();
-    QVector<QString> history = HistoryManager::getInstance()->getHistory();
+    std::vector<QString> history = HistoryManager::getInstance()->getHistory();
 
     YadFile file(source_code, history);
+    YadSerializer serializer{file_name};
 
     try {
-        file.saveToFile(file_name);
+        serializer.Serialize(file);
         setCurrentFilePath(file_name);
         setHasUnsavedData(false);
         return true;
-    } catch (std::exception e) {
+    } catch (std::exception& e) {
         QMessageBox msgBox;
         msgBox.setText(tr("<b>Can't save file %1</b>").arg(file_name));
         msgBox.setInformativeText(e.what());

@@ -21,7 +21,6 @@ class MarkovAlphabet {
 
    private:
     QSet<QChar> _chars;
-    QString _all_chars;
     QString _source;
     bool _is_auto;
 };
