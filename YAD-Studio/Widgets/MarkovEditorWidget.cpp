@@ -70,6 +70,7 @@ MarkovEditorWidget::MarkovEditorWidget(QWidget* parent)
             &AlphabetsManager::OnNewRuntimeAlphabet, this,
             [this](MarkovAlphabet new_alphabet) {
                 _runtime_alphabet = new_alphabet;
+                userChangedSourceCode();
             });
 
     updateLineNumberAreaWidth();

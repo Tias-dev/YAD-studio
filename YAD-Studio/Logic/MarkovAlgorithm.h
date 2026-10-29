@@ -64,7 +64,7 @@ class MarkovAlgorithm {
      */
     MarkovAlgorithm(MarkovAlphabet alphabet = MarkovAlphabet(),
                     std::vector<MarkovRule> rules = std::vector<MarkovRule>(),
-                    MarkovAlphabet input_alphabet = MarkovAlphabet(true));
+                    MarkovAlphabet input_alphabet = MarkovAlphabet());
 
     /**
      * @brief finds the rule which can be applied for input. If no rule found

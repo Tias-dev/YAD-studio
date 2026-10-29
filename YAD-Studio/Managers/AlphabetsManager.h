@@ -35,7 +35,7 @@ class AlphabetsManager : public QObject {
     void OnRemovedAlphabetError(AlphabetType type, AlphabetErrorCode code);
 
    private:
-    void UpdateErrors();
+    void UpdateInputErrors();
     static AlphabetsManager* instance_;
     std::set<AlphabetErrorCode> runtime_alphabet_errors_;
     std::set<AlphabetErrorCode> input_alphabet_errors_;

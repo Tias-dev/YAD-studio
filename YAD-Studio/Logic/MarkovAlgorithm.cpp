@@ -36,7 +36,6 @@ QString MarkovAlgorithm::useRule(QString input_word, const MarkovRule& rule) {
     QString res = "";
 
     RuleFitResult rule_fits = isRuleFits(input_word, rule);
-    rule_fits.start_index;
     res = input_word.mid(0, rule_fits.start_index);
     res += rule.getRightPart();
     res += input_word.mid(rule_fits.start_index + rule_fits.length,

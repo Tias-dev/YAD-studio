@@ -1,6 +1,7 @@
 #include "AlphabetsManager.h"
 
 #include <qset.h>
+#include <qtmetamacros.h>
 AlphabetsManager* AlphabetsManager::instance_ = nullptr;
 AlphabetsManager& AlphabetsManager::Instance() {
     if (!instance_) {
@@ -31,22 +32,39 @@ void AlphabetsManager::SetRuntimeAlphabet(MarkovAlphabet new_alphabet) {
         letters.insert(c);
     }
 
-    if (multiplied_letters.isEmpty() &&
-        runtime_alphabet_errors_.contains(
-            AlphabetErrorCode::kMultipleLetters)) {
-        runtime_alphabet_errors_.erase(AlphabetErrorCode::kMultipleLetters);
+    if (multiplied_letters.isEmpty()) {
         emit OnRemovedAlphabetError(AlphabetType::kRuntime,
                                     AlphabetErrorCode::kMultipleLetters);
-    } else if (!multiplied_letters.isEmpty() &&
-               !runtime_alphabet_errors_.contains(
-                   AlphabetErrorCode::kMultipleLetters)) {
+    } else {
         QString message{"Multiplied letters: "};
         message += ConcatSet(multiplied_letters);
         emit OnNewAlphabetError(AlphabetType::kRuntime,
                                 AlphabetErrorCode::kMultipleLetters, message);
-        runtime_alphabet_errors_.insert(AlphabetErrorCode::kMultipleLetters);
     }
     runtime_alphabet_ = new_alphabet;
+    emit OnNewRuntimeAlphabet(runtime_alphabet_);
+    UpdateInputErrors();
+}
+
+void AlphabetsManager::UpdateInputErrors() {
+    QSet<QChar> invalid_letters;
+    for (QChar c : input_alphabet_.getAllChars()) {
+        if (!runtime_alphabet_.getAlphabet().contains(c)) {
+            invalid_letters.insert(c);
+        }
+    }
+    if (invalid_letters.isEmpty()) {
+        emit OnRemovedAlphabetError(
+            AlphabetType::kInput,
+            AlphabetErrorCode::kRuntimeAlphabetDontContainInputAlphabet);
+    } else {
+        QString message{"Letters ouside runtime alphabet: "};
+        message += ConcatSet(invalid_letters);
+        emit OnNewAlphabetError(
+            AlphabetType::kInput,
+            AlphabetErrorCode::kRuntimeAlphabetDontContainInputAlphabet,
+            message);
+    }
 }
 
 void AlphabetsManager::SetInputAlphabet(MarkovAlphabet new_alphabet) {
@@ -61,41 +79,28 @@ void AlphabetsManager::SetInputAlphabet(MarkovAlphabet new_alphabet) {
         letters.insert(c);
     }
 
-    if (multiplied_letters.isEmpty() &&
-        input_alphabet_errors_.contains(AlphabetErrorCode::kMultipleLetters)) {
-        input_alphabet_errors_.erase(AlphabetErrorCode::kMultipleLetters);
+    if (multiplied_letters.isEmpty()) {
         emit OnRemovedAlphabetError(AlphabetType::kInput,
                                     AlphabetErrorCode::kMultipleLetters);
-    } else if (!multiplied_letters.isEmpty() &&
-               !input_alphabet_errors_.contains(
-                   AlphabetErrorCode::kMultipleLetters)) {
+    } else {
         QString message{"Multiplied letters: "};
         message += ConcatSet(multiplied_letters);
         emit OnNewAlphabetError(AlphabetType::kInput,
                                 AlphabetErrorCode::kMultipleLetters, message);
-        input_alphabet_errors_.insert(AlphabetErrorCode::kMultipleLetters);
     }
-    if (invalid_letters.isEmpty() &&
-        input_alphabet_errors_.contains(
-            AlphabetErrorCode::kRuntimeAlphabetDontContainInputAlphabet)) {
-        input_alphabet_errors_.erase(
-            AlphabetErrorCode::kRuntimeAlphabetDontContainInputAlphabet);
+    if (invalid_letters.isEmpty()) {
         emit OnRemovedAlphabetError(
             AlphabetType::kInput,
             AlphabetErrorCode::kRuntimeAlphabetDontContainInputAlphabet);
-    } else if (!invalid_letters.isEmpty() &&
-               !input_alphabet_errors_.contains(
-                   AlphabetErrorCode::
-                       kRuntimeAlphabetDontContainInputAlphabet)) {
+    } else {
         QString message{"Letters ouside runtime alphabet: "};
         message += ConcatSet(invalid_letters);
         emit OnNewAlphabetError(
             AlphabetType::kInput,
             AlphabetErrorCode::kRuntimeAlphabetDontContainInputAlphabet,
             message);
-        input_alphabet_errors_.insert(
-            AlphabetErrorCode::kRuntimeAlphabetDontContainInputAlphabet);
     }
 
     input_alphabet_ = new_alphabet;
+    emit OnNewInputAlphabet(input_alphabet_);
 }
