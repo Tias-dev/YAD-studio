@@ -1,5 +1,6 @@
 #include "MarkovAlphabet.h"
 
+#include <functional>
 #include <queue>
 
 MarkovAlphabet::MarkovAlphabet(const QSet<QChar>& alphabeth)
@@ -10,7 +11,7 @@ MarkovAlphabet::MarkovAlphabet(const bool is_auto) : _is_auto(is_auto) {}
 QSet<QChar> MarkovAlphabet::getAlphabet() const { return _chars; }
 
 QString MarkovAlphabet::getAllChars() const {
-    std::priority_queue<QChar> letters;
+    std::priority_queue<QChar, std::vector<QChar>, std::greater<>> letters;
     for (const QChar c : _chars) {
         letters.push(c);
     }

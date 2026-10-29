@@ -16,7 +16,6 @@ class AlphabetsManager : public QObject {
 
     enum class AlphabetErrorCode {
         kInvalidLetter,
-        kMultipleLetters,
         kRuntimeAlphabetDontContainInputAlphabet,
     };
 

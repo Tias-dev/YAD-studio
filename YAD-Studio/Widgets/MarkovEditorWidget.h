@@ -106,7 +106,7 @@ class MarkovEditorWidget : public QPlainTextEdit {
     /**
      * @brief last changed alphabets
      */
-    MarkovAlphabet _runtime_alphabet, _input_alphabet;
+    MarkovAlphabet _runtime_alphabet, _input_alphabet{true};
 
     /**
      * @brief list of active break points

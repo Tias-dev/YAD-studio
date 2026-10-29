@@ -19,16 +19,12 @@ MarkovRunManager::MarkovRunManager()
       _stop_on_next_step(false),
       _terminate_on_next_step(false) {}
 
-RunError notInAlphabet(QString letter, MarkovAlphabet alphabet_m,
-                       QString name = "T") {
-    QString old_alphabet = QObject::tr("%1").arg(letter);
-    old_alphabet += ", " + alphabet_m.getSource();
-
-    QString title = QObject::tr("Symbol '%1' is not in alphabet").arg(letter);
+RunError notInAlphabet(QString letter, QString name = "Runtime") {
+    QString title =
+        QObject::tr("Symbol '%1' is not in %2 alphabet").arg(letter).arg(name);
     QString description =
-        QObject::tr("You can add it to alphabet. Examples: '%1 = {%2}'.")
-            .arg(name)
-            .arg(old_alphabet);
+        QObject::tr("You can add it to %1 alphabet in the field above")
+            .arg(name);
 
     return RunError(title, description, 305);
 }
@@ -215,17 +211,14 @@ bool MarkovRunManager::isInputValid(QString input_word) {
     if (_algorithm.getInputAlphabet().isAuto()) {
         if (hasSymbolsNotInAlphabet(input_word, _algorithm.getAlphabet(),
                                     test)) {
-            emit debugFinishFail(
-                input_word, notInAlphabet(test, _algorithm.getAlphabet()), 0);
+            emit debugFinishFail(input_word, notInAlphabet(test, "Runtime"), 0);
             QCoreApplication::processEvents();
             return false;
         }
     } else {
         if (hasSymbolsNotInAlphabet(input_word, _algorithm.getInputAlphabet(),
                                     test)) {
-            emit debugFinishFail(
-                input_word,
-                notInAlphabet(test, _algorithm.getInputAlphabet(), "I"), 0);
+            emit debugFinishFail(input_word, notInAlphabet(test, "Input"), 0);
             QCoreApplication::processEvents();
             return false;
         }

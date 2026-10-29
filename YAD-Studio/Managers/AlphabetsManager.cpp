@@ -2,6 +2,8 @@
 
 #include <qset.h>
 #include <qtmetamacros.h>
+
+#include "MarkovAlphabet.h"
 AlphabetsManager* AlphabetsManager::instance_ = nullptr;
 AlphabetsManager& AlphabetsManager::Instance() {
     if (!instance_) {
@@ -24,23 +26,6 @@ QString ConcatSet(QSet<QChar> letters) {
 }  // namespace
 
 void AlphabetsManager::SetRuntimeAlphabet(MarkovAlphabet new_alphabet) {
-    QSet<QChar> letters, multiplied_letters;
-    for (QChar c : new_alphabet.getAllChars()) {
-        if (letters.contains(c)) {
-            multiplied_letters.insert(c);
-        }
-        letters.insert(c);
-    }
-
-    if (multiplied_letters.isEmpty()) {
-        emit OnRemovedAlphabetError(AlphabetType::kRuntime,
-                                    AlphabetErrorCode::kMultipleLetters);
-    } else {
-        QString message{"Multiplied letters: "};
-        message += ConcatSet(multiplied_letters);
-        emit OnNewAlphabetError(AlphabetType::kRuntime,
-                                AlphabetErrorCode::kMultipleLetters, message);
-    }
     runtime_alphabet_ = new_alphabet;
     emit OnNewRuntimeAlphabet(runtime_alphabet_);
     UpdateInputErrors();
@@ -76,26 +61,13 @@ void AlphabetsManager::UpdateInputErrors() {
 }
 
 void AlphabetsManager::SetInputAlphabet(MarkovAlphabet new_alphabet) {
-    QSet<QChar> letters, multiplied_letters, invalid_letters;
+    QSet<QChar> invalid_letters;
     for (QChar c : new_alphabet.getAllChars()) {
-        if (letters.contains(c)) {
-            multiplied_letters.insert(c);
-        }
         if (!runtime_alphabet_.getAlphabet().contains(c)) {
             invalid_letters.insert(c);
         }
-        letters.insert(c);
     }
 
-    if (multiplied_letters.isEmpty()) {
-        emit OnRemovedAlphabetError(AlphabetType::kInput,
-                                    AlphabetErrorCode::kMultipleLetters);
-    } else {
-        QString message{"Multiplied letters: "};
-        message += ConcatSet(multiplied_letters);
-        emit OnNewAlphabetError(AlphabetType::kInput,
-                                AlphabetErrorCode::kMultipleLetters, message);
-    }
     if (invalid_letters.isEmpty()) {
         emit OnRemovedAlphabetError(
             AlphabetType::kInput,
@@ -110,5 +82,8 @@ void AlphabetsManager::SetInputAlphabet(MarkovAlphabet new_alphabet) {
     }
 
     input_alphabet_ = new_alphabet;
+    if (new_alphabet.getAlphabet().isEmpty()) {
+        input_alphabet_ = MarkovAlphabet(/*is_auto=*/true);
+    }
     emit OnNewInputAlphabet(input_alphabet_);
 }
