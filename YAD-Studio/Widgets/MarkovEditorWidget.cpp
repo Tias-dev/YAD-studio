@@ -65,6 +65,7 @@ MarkovEditorWidget::MarkovEditorWidget(QWidget* parent)
             &AlphabetsManager::OnNewInputAlphabet, this,
             [this](MarkovAlphabet new_alphabet) {
                 _input_alphabet = new_alphabet;
+                userChangedSourceCode();
             });
     connect(&AlphabetsManager::Instance(),
             &AlphabetsManager::OnNewRuntimeAlphabet, this,
