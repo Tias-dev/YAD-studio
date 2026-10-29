@@ -140,8 +140,8 @@ void YadSerializer::Serialize_(const NAMClosure& closure) const {
     QJsonDocument document{program_object};
     QFile file{file_name_};
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        throw std::runtime_error{
-            std::format("Can't open file: {}", file_name_.toStdString())};
+        throw std::runtime_error{"Can't open file: " +
+                                 file_name_.toStdString()};
     }
     file.write(document.toJson(QJsonDocument::Compact));
 }
@@ -195,16 +195,16 @@ template <typename T>
 T GetKey(const QJsonObject& object, const char* obj_name,
          const char* key_name) {
     if (!object.contains(key_name)) {
-        throw std::runtime_error(std::format("Expected key: {} not found in {}",
-                                             key_name, obj_name));
+        throw std::runtime_error{std::string{"Expected key: "} + key_name +
+                                 " not found in " + obj_name};
     }
     QJsonValueConstRef ref = object.find(key_name).value();
     try {
         return GetValueFromRef<T>(ref);
     } catch (std::runtime_error& e) {
-        throw std::runtime_error(
-            std::format("Error while parsing: {} for key: {}. Error: {}",
-                        obj_name, key_name, e.what()));
+        throw std::runtime_error{std::string{"Error while parsing: "} +
+                                 obj_name + " for key: " + key_name +
+                                 ". Error: " + e.what()};
     }
 }
 
@@ -213,19 +213,19 @@ T GetKey(const QJsonObject& object, const char* obj_name,
 YadSerializer::NAMClosure YadSerializer::Deserialize_() const {
     QFile file{file_name_};
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        throw std::runtime_error{
-            std::format("Can't open file: {}", file_name_.toStdString())};
+        throw std::runtime_error{"Can't open file: " +
+                                 file_name_.toStdString()};
     }
     QByteArray bytes = file.readAll();
     QJsonParseError error;
     QJsonDocument document = QJsonDocument::fromJson(bytes, &error);
     if (document.isNull()) {
-        throw std::runtime_error(std::format(
-            "Can't parse json data from file: {}", file_name_.toStdString()));
+        throw std::runtime_error{"Can't parse json data from file: " +
+                                 file_name_.toStdString()};
     }
     if (!document.isObject()) {
-        throw std::runtime_error(
-            "File must be valid JSON object but it is not!");
+        throw std::runtime_error{
+            "File must be valid JSON object but it is not!"};
     }
 
     QJsonObject data = document.object();
