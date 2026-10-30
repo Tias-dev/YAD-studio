@@ -78,11 +78,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE yad_core)
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE YAD_VERSION="${PROJECT_VERSION}")
 
-# TODO: Add headless version
-# add_executable(${PROJECT_NAME}-headless headless_main.cpp)
-# target_link_libraries(${PROJECT_NAME}-headless PRIVATE yad_core)
-# target_compile_definitions(${PROJECT_NAME}-headless
-#                            PRIVATE YAD_VERSION="${PROJECT_VERSION}")
+add_executable(${PROJECT_NAME}-headless headless_main.cpp)
+target_link_libraries(${PROJECT_NAME}-headless PRIVATE yad_core)
+target_compile_definitions(${PROJECT_NAME}-headless
+                           PRIVATE YAD_VERSION="${PROJECT_VERSION}")
 
 if(MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
@@ -111,6 +110,5 @@ install(
   TARGETS ${PROJECT_NAME}
   BUNDLE DESTINATION .
   RUNTIME DESTINATION bin)
-# TODO Add headless version
-# install(TARGETS ${PROJECT_NAME}-headless RUNTIME DESTINATION bin)
+install(TARGETS ${PROJECT_NAME}-headless RUNTIME DESTINATION bin)
 install(TARGETS yad_core ARCHIVE DESTINATION lib)

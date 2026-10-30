@@ -103,6 +103,10 @@ YadFile YadSerializer::Deserialize() const {
     return YadFile{source_code, closure.history};
 }
 
+YadSerializer::NAMClosure YadSerializer::DeserializeRaw() const {
+    return Deserialize_();
+}
+
 void YadSerializer::Serialize_(const NAMClosure& closure) const {
     QJsonArray rules;
     for (const MarkovRule& rule : closure.rules) {
@@ -233,8 +237,11 @@ YadSerializer::NAMClosure YadSerializer::Deserialize_() const {
     NAMClosure closure;
     QString input_alphabet =
         GetKey<QString>(data, "document", "input_alphabet");
-    closure.input_alphabet = MarkovAlphabet{
-        QSet<QChar>{std::begin(input_alphabet), std::end(input_alphabet)}};
+    closure.input_alphabet =
+        input_alphabet.isEmpty()
+            ? MarkovAlphabet{true}
+            : MarkovAlphabet{QSet<QChar>{std::begin(input_alphabet),
+                                         std::end(input_alphabet)}};
     QString runtime_alphabet =
         GetKey<QString>(data, "document", "runtime_alphabet");
     closure.runtime_alphabet = MarkovAlphabet{

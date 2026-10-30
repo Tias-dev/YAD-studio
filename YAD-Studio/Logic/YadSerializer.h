@@ -33,7 +33,7 @@ class YadSerializer {
      */
     YadFile Deserialize() const;
 
-   private:
+   public:
     /**
      * @class NAMClosure
      * @brief all NAM program data
@@ -45,6 +45,15 @@ class YadSerializer {
         std::vector<QString> history;
     };
 
+   public:
+    /**
+     * @brief Deserialize program
+     *
+     * @return raw deserialize result
+     */
+    NAMClosure DeserializeRaw() const;
+
+   private:
     /**
      * @brief Inner serializer function
      * std::runtime_error on error
