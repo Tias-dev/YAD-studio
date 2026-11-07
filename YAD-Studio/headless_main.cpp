@@ -31,7 +31,7 @@ int main(int argc, char* argw[]) {
     opts.push_back(
         option{.name = "verbose", .has_arg = 1, .flag = nullptr, .val = 'v'});
     opts.push_back(option{
-        .name = "json-output", .has_arg = 1, .flag = nullptr, .val = 'j'});
+        .name = "json-output", .has_arg = 0, .flag = nullptr, .val = 'j'});
     opts.push_back({});
     memset(&opts.back(), 0, sizeof(option));
 
